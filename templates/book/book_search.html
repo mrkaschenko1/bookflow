@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+   Search book
+{% endblock %}
+{% block content %}
+   <form  class="form-inline" action="/book/search" method="get" class="form">
+{#   {% csrf_token %}#}
+    <input class="form-control" type="text" name="query" placeholder="Search here...">
+    <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if book_list %}
+        {{ book_list.totalItems }}
+        {% for item in book_list.items%}
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="{{ item.volumeInfo.imageLinks.smallThumbnail }}" class="card-img" alt="...">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h4 class="card-title">{{ item.volumeInfo.title }}</h4>
+                      <h5 class="card-title">
+                          {% for author in item.volumeInfo.authors %}
+                            {{ author }}
+                          {% endfor %}
+                      </h5>
+                    <p class="card-text">{{item.volumeInfo.description|truncatechars:200}}</p>
+                    <p class="card-text"><small class="text-muted">Average rating: {{ item.volumeInfo.averageRating }}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+{#            Title: {{ item.volumeInfo.title }} <br>#}
+{#            Authors: {{ item.volumeInfo.authors }} <br>#}
+{#            Description: {{ item.volumeInfo.description }} <br>#}
+{#            Number of pages: {{ item.volumeInfo.pageCount }} <br>#}
+{#            Average rating: {{ item.volumeInfo.averageRating }} <br>#}
+{#            <br><br>#}
+        {% endfor %}
+
+    {% endif %}
+{% endblock %}
