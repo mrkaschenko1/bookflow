@@ -7,7 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 class BookSearch(View):
     def get(self, request):
         apiResponse = None
-        if (request.GET['query'] != ""):
+        queryParam = request.GET.get('query')
+        if (queryParam != "" and queryParam is not None):
             query = request.GET['query'].replace(" ","%20")
             apiResponse = requests.get(f'https://www.googleapis.com/books/v1/volumes?q={query}').json()
             print(apiResponse)
