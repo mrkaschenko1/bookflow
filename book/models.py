@@ -2,11 +2,16 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Book(models.Model):
+class BookInfo(models.Model):
+    google_id = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=150)
-    description = models.TextField(max_length=1000)
+    authors = models.CharField(max_length=100, blank=True)
+    description = models.TextField(max_length=1000, blank=True)
+    pageCount = models.IntegerField(blank=True, null=True)
+    small_pic_url = models.URLField(blank=True)
 
 
 class Shelf(models.Model):
     name = models.CharField(max_length=150)
-    books = models.ManyToManyField(Book, related_name='shelves', blank=True)
+    books = models.ManyToManyField(BookInfo, related_name='shelves', blank=True)
+    profile = models.ForeignKey('accounts.Profile', related_name='shelf', blank=False, on_delete=models.CASCADE)

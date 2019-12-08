@@ -1,6 +1,8 @@
-from django.urls import path
+from django.contrib.auth.decorators import login_required
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    path('search/', views.BookSearch.as_view(), name='book_search'),
+    path('search/', login_required(views.BookSearch.as_view()), name='book_search'),
+    re_path(r'^search/add/(?P<id>[0-9a-zA-Z]{12})/$', login_required(views.AddToBookshelf.as_view()), name='book_add'),
 ]
