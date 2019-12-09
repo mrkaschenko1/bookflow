@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 import requests
@@ -48,6 +49,7 @@ class AddToBookshelf(View):
             # here should be check for book on shelf,
             # actually it had to be before
             shelf.books.add(book)
+            messages.success(request, f'Your book was added on {shelf_name} shelf!')
 
 
         print(profile.bio)

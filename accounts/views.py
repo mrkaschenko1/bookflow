@@ -1,4 +1,7 @@
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -9,10 +12,28 @@ from django.views import View
 from .forms import ProfileForm, UserForm
 
 
-class SignUp(generic.CreateView):
+class SignUp(SuccessMessageMixin, generic.CreateView):
     form_class = SignUpForm
     success_url = reverse_lazy('login')
+    success_message = "Your account was successfully created"
     template_name = 'signup.html'
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    # Optional (default: 'registration/password_change_form.html')
+    #template_name = 'accounts/my_password_change_form.html'
+    # Optional (default: `reverse_lazy('password_change_done')`)
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        update_session_auth_hash(self.request, form.user)
+        messages.success(self.request, 'Your password has been changed.')
+        return super().form_valid(form)
+
+class CustomPasswordChangeDoneView(PasswordChangeDoneView):
+    template_name = 'accounts/profile.html'
+
+
 
 
 @login_required
