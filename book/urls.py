@@ -4,5 +4,5 @@ from . import views
 
 urlpatterns = [
     path('search/', login_required(views.BookSearch.as_view()), name='book_search'),
-    re_path(r'^search/add/(?P<id>[0-9a-zA-Z]{12})/$', login_required(views.AddToBookshelf.as_view()), name='book_add'),
+    re_path(r'^search/add/(?P<id>.{12})/$', login_required(views.AddToBookshelf.as_view()), name='book_add'),
 ]

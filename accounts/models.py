@@ -18,9 +18,9 @@ def create_user_profile(sender, instance, created, **kwargs):
         if created:
             profile = Profile(user=user)
             profile.save()
-            Shelf.objects.create(name="To read", profile=profile)
-            Shelf.objects.create(name="In progress", profile=profile)
-            Shelf.objects.create(name="Have read", profile=profile)
+            Shelf.objects.create(name="To read", profile=profile, is_custom=False)
+            Shelf.objects.create(name="In progress", profile=profile, is_custom=False)
+            Shelf.objects.create(name="Have read", profile=profile, is_custom=False)
 
     except Profile.DoesNotExist:
         print('foo')

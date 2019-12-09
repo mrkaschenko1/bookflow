@@ -1,0 +1,30 @@
+{% block content %}
+    {% if book %}
+        <div class="card mb-3" style="max-width: 540px;">
+          <div class="row no-gutters">
+            <div class="col-md-4">
+              <img src="{{ book.volumeInfo.imageLinks.smallThumbnail }}" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h4 class="card-title">{{ book.volumeInfo.title }}</h4>
+                  <h5 class="card-title">
+                      {% for author in book.volumeInfo.authors %}
+                        {{ author }}
+                      {% endfor %}
+                  </h5>
+                <p class="card-text">{{book.volumeInfo.description}}</p>
+                <p class="card-text"><small class="text-muted">Average rating: {{ book.volumeInfo.averageRating }}</small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+{#            Title: {{ item.volumeInfo.title }} <br>#}
+{#            Authors: {{ item.volumeInfo.authors }} <br>#}
+{#            Description: {{ item.volumeInfo.description }} <br>#}
+{#            Number of pages: {{ item.volumeInfo.pageCount }} <br>#}
+{#            Average rating: {{ item.volumeInfo.averageRating }} <br>#}
+{#            <br><br>#}
+
+    {% endif %}
+{% endblock %}

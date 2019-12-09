@@ -8,10 +8,11 @@ class BookInfo(models.Model):
     authors = models.CharField(max_length=100, blank=True)
     description = models.TextField(max_length=1000, blank=True)
     pageCount = models.IntegerField(blank=True, null=True)
-    small_pic_url = models.URLField(blank=True)
+    small_pic_url = models.URLField(max_length=1000, blank=True)
 
 
 class Shelf(models.Model):
     name = models.CharField(max_length=150)
     books = models.ManyToManyField(BookInfo, related_name='shelves', blank=True)
-    profile = models.ForeignKey('accounts.Profile', related_name='shelf', blank=False, on_delete=models.CASCADE)
+    is_custom = models.BooleanField(default=True)
+    profile = models.ForeignKey('accounts.Profile', related_name='shelves', blank=False, on_delete=models.CASCADE)
