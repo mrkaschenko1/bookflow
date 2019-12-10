@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'book.apps.BookConfig',
     'crispy_forms',
+    'columns',
+    'cropperjs'
     #'bootstrap4',
 ]
 
@@ -130,7 +132,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'accounts/static')
+
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'

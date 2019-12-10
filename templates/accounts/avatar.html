@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+   Avatar
+{% endblock %}
+{% block content %}
+    <form action="{% url 'avatar_change' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Save changes</button>
+    </form>
+{% endblock %}

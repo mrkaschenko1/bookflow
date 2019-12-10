@@ -1,15 +1,17 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from .forms import SignUpForm
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import SignUpForm, ImageUploadForm
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
+from .models import Profile
 
 
 class SignUp(SuccessMessageMixin, generic.CreateView):
@@ -19,7 +21,7 @@ class SignUp(SuccessMessageMixin, generic.CreateView):
     template_name = 'signup.html'
 
 
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     # Optional (default: 'registration/password_change_form.html')
     #template_name = 'accounts/my_password_change_form.html'
     # Optional (default: `reverse_lazy('password_change_done')`)
@@ -56,3 +58,41 @@ def update_profile(request):
         'user_form': user_form,
         'profile_form': profile_form
     })
+
+
+def upload_pic(request):
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = get_object_or_404(Profile, pk=request.user.id)
+            profile.avatar = form.cleaned_data['avatar']
+            profile.save()
+            messages.success(request, 'Avatar changed!')
+            return redirect('home')
+    else:
+        form = ImageUploadForm()
+    return render(request, 'accounts/avatar.html', {
+                  'form': form,
+    })
+# def photo_list(request):
+#     profile = get_object_or_404(Profile, pk=request.user.id)
+#     photo = Profile.file
+#     if request.method == 'POST':
+#         form = PhotoForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('photo_list')
+#     else:
+#         form = PhotoForm()
+#     return render(request, 'accounts/photo_list.html', {'form': form, 'photo': photo})
+# def change_avatar(request):
+#     if request.method == 'POST':
+#         form = AvatarChangeForm(request.POST, request.FILES,
+#                                 instance=request.user.profile)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AvatarChangeForm(instance=request.user.profile)
+#
+#     return render(request, 'accounts/avatar.html', {'form': form})

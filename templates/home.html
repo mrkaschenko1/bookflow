@@ -4,15 +4,5 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}!
-  <p><a href="{% url 'logout' %}">logout</a></p>
-    <p><a href="{% url 'update_profile' %}">update profile</a></p>
-    <p><a href="{% url 'password_change' %}">change password</a></p>
-{% else %}
-  <p>You are not logged in</p>
-  <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'signup' %}">Sign Up</a>
-     <p><a href="{% url 'password_reset' %}">Forgot my password</a></p>
-{% endif %}
+
 {% endblock %}

@@ -1,54 +1,95 @@
 {% extends 'base.html' %}
+
+{% load columns %}
+
 {% block title %}
    Search book
 {% endblock %}
 {% block content %}
-   <form  class="form-inline" action="/book/search" method="get" class="form">
-{#   {% csrf_token %}#}
-    <input class="form-control" type="text" name="query" placeholder="Search here...">
-    <button type="submit" class="btn btn-primary">Search</button>
-    </form>
 
     {% if book_list %}
-        {{ book_list.totalItems }}
-        {% for item in book_list.items%}
-            <div class="card mb-3" style="max-width: 540px;">
-              <div class="row no-gutters">
-                <div class="col-md-4">
-                  <img src="{{ item.volumeInfo.imageLinks.smallThumbnail }}" class="card-img" alt="...">
-                </div>
-                <div class="col-md-8">
-                  <div class="card-body">
-                    <h4 class="card-title">{{ item.volumeInfo.title }}</h4>
-                      <h5 class="card-title">
-                          {% for author in item.volumeInfo.authors %}
-                            {{ author }}
-                          {% endfor %}
-                      </h5>
-                    <p class="card-text">{{item.volumeInfo.description|truncatechars:200}}</p>
-                    <p class="card-text"><small class="text-muted">Average rating: {{ item.volumeInfo.averageRating }}</small></p>
-                  <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add to bookshelf
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          {% for shelf in shelves %}
-                            <a class="dropdown-item" href="{% url 'book_add' id=item.id  %}?title={{ item.volumeInfo.title }}&shelf={{ shelf }}">{{ shelf }}</a>
-                          {% endfor %}
+        <div class="row">
+        {% for col in book_list.items|columns:2 %}
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                {% for item in col %}
+                    <div class="card mb-3" style="max-width: 540px;">
+                      <div class="row no-gutters">
+                        <div class="col-md-4">
+                            {% if item.volumeInfo.imageLinks.smallThumbnail %}
+                          <img src="{{ item.volumeInfo.imageLinks.smallThumbnail }}" class="card-img" alt="...">
+                            {% else %}
+                          <img src="https://previews.123rf.com/images/chupakabrajk/chupakabrajk1811/chupakabrajk181100009/111711652-book-vector-illustration-of-a-textbook-a-book-closed-book-with-the-inscription-book-.jpg" class="card-img" alt="...">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                          <div class="card-body">
+                            <h4 class="card-title">{{ item.volumeInfo.title }}</h4>
+                              <h5 class="card-title">
+                                  {% for author in item.volumeInfo.authors %}
+                                    {{ author }}
+                                  {% endfor %}
+                              </h5>
+                            <p class="card-text">{{item.volumeInfo.description|truncatechars:200}}</p>
+                            <p class="card-text"><small class="text-muted">Average rating: {{ item.volumeInfo.averageRating }}</small></p>
+                          <div class="dropdown">
+                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Add to bookshelf
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                  {% for shelf in shelves %}
+                                    <a class="dropdown-item" href="{% url 'book_add' id=item.id  %}?title={{ item.volumeInfo.title }}&shelf={{ shelf }}">{{ shelf }}</a>
+                                  {% endfor %}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                  </div>
-{#                  <p><a href="{% url 'book_add' id=item.id  %}?title={{ item.volumeInfo.title }}">add this to my bookshelf</a></p>#}
-                  </div>
-                </div>
-              </div>
+                    </div>
+                    {% endfor %}
+
             </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+{#        {% for item in book_list.items%}#}
+{#            <div class="card mb-3" style="max-width: 540px;">#}
+{#              <div class="row no-gutters">#}
+{#                <div class="col-md-4">#}
+{#                  <img src="{{ item.volumeInfo.imageLinks.smallThumbnail }}" class="card-img" alt="...">#}
+{#                </div>#}
+{#                <div class="col-md-8">#}
+{#                  <div class="card-body">#}
+{#                    <h4 class="card-title">{{ item.volumeInfo.title }}</h4>#}
+{#                      <h5 class="card-title">#}
+{#                          {% for author in item.volumeInfo.authors %}#}
+{#                            {{ author }}#}
+{#                          {% endfor %}#}
+{#                      </h5>#}
+{#                    <p class="card-text">{{item.volumeInfo.description|truncatechars:200}}</p>#}
+{#                    <p class="card-text"><small class="text-muted">Average rating: {{ item.volumeInfo.averageRating }}</small></p>#}
+{#                  <div class="dropdown">#}
+{#                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                        Add to bookshelf#}
+{#                      </button>#}
+{#                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+{#                          {% for shelf in shelves %}#}
+{#                            <a class="dropdown-item" href="{% url 'book_add' id=item.id  %}?title={{ item.volumeInfo.title }}&shelf={{ shelf }}">{{ shelf }}</a>#}
+{#                          {% endfor %}#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <p><a href="{% url 'book_add' id=item.id  %}?title={{ item.volumeInfo.title }}">add this to my bookshelf</a></p>#}
+{#                  </div>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
 {#            Title: {{ item.volumeInfo.title }} <br>#}
 {#            Authors: {{ item.volumeInfo.authors }} <br>#}
 {#            Description: {{ item.volumeInfo.description }} <br>#}
 {#            Number of pages: {{ item.volumeInfo.pageCount }} <br>#}
 {#            Average rating: {{ item.volumeInfo.averageRating }} <br>#}
 {#            <br><br>#}
-        {% endfor %}
-
-    {% endif %}
+{#        {% endfor %}#}
+{##}
+{#    {% endif %}#}
 {% endblock %}
