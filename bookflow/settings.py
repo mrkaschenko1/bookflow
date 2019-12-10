@@ -138,11 +138,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'accounts/static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
+
+# LOGIN_EXEMPT_URLS = (
+#  r'^accounts/password_reset/*$',
+#  r'^accounts/reset/*$', # allow the entire /legal/* subsection
+# )
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")

@@ -91,6 +91,9 @@ def delete_pic(request):
     return redirect('update_profile')
 
 
+@login_required
+def index(request):
+    return render(request, 'home.html')
 
 
 # def upload_pic(request):
