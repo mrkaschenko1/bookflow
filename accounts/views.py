@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
-from .models import Profile
+from .models import Profile, Avatar
 
 
 class SignUp(SuccessMessageMixin, generic.CreateView):
@@ -65,8 +65,14 @@ def upload_pic(request):
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
             profile = get_object_or_404(Profile, pk=request.user.id)
-            profile.avatar = form.cleaned_data['avatar']
-            profile.save()
+            try:
+                Avatar.objects.get(profile=profile)
+                old_avatar = Avatar.objects.get(profile=profile)
+                old_avatar.delete()
+            except:
+                pass
+            avatar = Avatar(image=form.cleaned_data['image'], profile=profile)
+            avatar.save()
             messages.success(request, 'Avatar changed!')
             return redirect('home')
     else:
@@ -74,25 +80,3 @@ def upload_pic(request):
     return render(request, 'accounts/avatar.html', {
                   'form': form,
     })
-# def photo_list(request):
-#     profile = get_object_or_404(Profile, pk=request.user.id)
-#     photo = Profile.file
-#     if request.method == 'POST':
-#         form = PhotoForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('photo_list')
-#     else:
-#         form = PhotoForm()
-#     return render(request, 'accounts/photo_list.html', {'form': form, 'photo': photo})
-# def change_avatar(request):
-#     if request.method == 'POST':
-#         form = AvatarChangeForm(request.POST, request.FILES,
-#                                 instance=request.user.profile)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('home')
-#     else:
-#         form = AvatarChangeForm(instance=request.user.profile)
-#
-#     return render(request, 'accounts/avatar.html', {'form': form})

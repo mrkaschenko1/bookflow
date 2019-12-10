@@ -4,5 +4,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-
+    <div class="text-center">
+        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle z-depth-1" alt="avatar">
+    </div>
 {% endblock %}
