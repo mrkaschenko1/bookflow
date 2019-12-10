@@ -1,6 +1,9 @@
 from PIL import Image
 from django.db import models
 from django.contrib.auth.models import User
+from imagekit.models import ImageSpecField
+from pilkit.processors import ResizeToFill
+
 from book.models import Shelf, BookInfo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -14,7 +17,11 @@ class Profile(models.Model):
 
 
 class Avatar(models.Model):
-    image = models.ImageField(upload_to = 'avatars', null=True, blank=True)
+    image = models.ImageField(upload_to='avatars', default='default/default_avatar.png')
+    image_thumbnail = ImageSpecField(source='image',
+                                     processors=[ResizeToFill(40, 40)],
+                                     format='PNG',
+                                     options={'quality': 60})
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='avatar')
 
     def save(self, *args, **kwargs):
@@ -55,7 +62,10 @@ def create_user_profile(sender, instance, created, **kwargs):
         user = instance
         if created:
             profile = Profile(user=user)
+            avatar = Avatar(image='default/default_avatar.png', profile=profile)
+            # profile.avatar.image.set_image_to_default()
             profile.save()
+            avatar.save()
             Shelf.objects.create(name="To read", profile=profile, is_custom=False)
             Shelf.objects.create(name="In progress", profile=profile, is_custom=False)
             Shelf.objects.create(name="Have read", profile=profile, is_custom=False)

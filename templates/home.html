@@ -4,7 +4,11 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+    {% if user.is_authenticated %}
+    <br>
     <div class="text-center">
-        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle z-depth-1" alt="avatar">
+        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle shadow-lg p-2" alt="avatar">
+        <img src="{{user.profile.avatar.image_thumbnail.url}}" class="rounded-circle shadow-lg" alt="avatar">
     </div>
+    {% endif %}
 {% endblock %}

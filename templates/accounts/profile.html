@@ -5,11 +5,31 @@
 {% block title %}
    Profile info
 {% endblock %}
+{% block styles %}
+<link href="//cdn.bootcss.com/bootstrap-datetimepicker/4.17.44/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+{% endblock %}
 {% block content %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
+    <br>
+    <div class="text-center">
+        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle shadow-lg p-2" alt="avatar">
+        <p><a href="{% url 'avatar_delete' %}">Delete avatar</a></p>
+    </div>
+    {{ avatar_form|crispy }}
   {{ user_form|crispy }}
-  {{ profile_form|crispy }}
+  <div style="position: relative">{{ profile_form|crispy }}</div>
   <button type="submit">Save changes</button>
 </form>
+{% endblock %}
+{% block javascript %}
+    <script src="//cdn.bootcss.com/moment.js/2.17.1/moment.min.js"></script>
+    <script src="//cdn.bootcss.com/bootstrap-datetimepicker/4.17.44/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+    $(function () {
+        $('.datetime-input').datetimepicker({
+            format:'YYYY-MM-DD'
+        });
+    });
+</script>
 {% endblock %}

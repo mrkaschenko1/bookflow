@@ -25,6 +25,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('bio', 'birth_date',)
+        widgets = {
+            'birth_date': forms.DateTimeInput(attrs={'class': 'datetime-input'})
+        }
 
 
 class ImageUploadForm(forms.ModelForm):

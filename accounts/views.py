@@ -5,6 +5,7 @@ from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import SignUpForm, ImageUploadForm
 from django.urls import reverse_lazy
@@ -32,7 +33,7 @@ class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
         messages.success(self.request, 'Your password has been changed.')
         return super().form_valid(form)
 
-class CustomPasswordChangeDoneView(PasswordChangeDoneView):
+class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     template_name = 'accounts/profile.html'
 
 
@@ -44,7 +45,17 @@ def update_profile(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
+        avatar_form = ImageUploadForm(request.POST, request.FILES)
+        if user_form.is_valid() and profile_form.is_valid() and avatar_form.is_valid():
+            profile = request.user.profile
+            try:
+                Avatar.objects.get(profile=profile)
+                old_avatar = Avatar.objects.get(profile=profile)
+                old_avatar.delete()
+            except:
+                pass
+            avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
+            avatar.save()
             user_form.save()
             profile_form.save()
             messages.success(request, 'Your profile was successfully updated!')
@@ -54,29 +65,51 @@ def update_profile(request):
     else:
         user_form = UserForm(instance=request.user)
         profile_form = ProfileForm(instance=request.user.profile)
+        avatar_form = ImageUploadForm(instance=request.user.profile.avatar)
     return render(request, 'accounts/profile.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'avatar_form': avatar_form
     })
 
 
-def upload_pic(request):
-    if request.method == 'POST':
-        form = ImageUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            profile = get_object_or_404(Profile, pk=request.user.id)
-            try:
-                Avatar.objects.get(profile=profile)
-                old_avatar = Avatar.objects.get(profile=profile)
-                old_avatar.delete()
-            except:
-                pass
-            avatar = Avatar(image=form.cleaned_data['image'], profile=profile)
-            avatar.save()
-            messages.success(request, 'Avatar changed!')
-            return redirect('home')
+@login_required
+def delete_pic(request):
+    if request.user.profile.avatar.image.url != '/media/default/default_avatar.png':
+        profile = request.user.profile
+        try:
+            Avatar.objects.get(profile=profile)
+            old_avatar = Avatar.objects.get(profile=profile)
+            old_avatar.delete()
+        except:
+            pass
+        avatar = Avatar(image='default/default_avatar.png', profile=profile)
+        avatar.save()
+        messages.success(request, 'Avatar deleted successfully')
     else:
-        form = ImageUploadForm()
-    return render(request, 'accounts/avatar.html', {
-                  'form': form,
-    })
+        messages.warning(request, 'You don`t have avatar, so you can`t delete it')
+    return redirect('update_profile')
+
+
+
+
+# def upload_pic(request):
+#     if request.method == 'POST':
+#         form = ImageUploadForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             profile = request.user.profile
+#             try:
+#                 Avatar.objects.get(profile=profile)
+#                 old_avatar = Avatar.objects.get(profile=profile)
+#                 old_avatar.delete()
+#             except:
+#                 pass
+#             avatar = Avatar(image=form.cleaned_data['image'], profile=profile)
+#             avatar.save()
+#             messages.success(request, 'Avatar changed!')
+#             return redirect('home')
+#     else:
+#         form = ImageUploadForm()
+#     return render(request, 'accounts/avatar.html', {
+#                   'form': form,
+#     })
