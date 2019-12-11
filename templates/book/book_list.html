@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+
+
+{% block content %}
+    {% for shelf_name in shelves %}
+        {{ shelf_name }}
+    {% endfor %}
+    <div class="row">
+      <div class="col-4">
+        <div class="list-group" id="list-tab" role="tablist">
+            {% for shelf in shelves %}
+          <a class="list-group-item list-group-item-action {{ shelf.active }}" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+    {{ books }}
+{% endblock %}
