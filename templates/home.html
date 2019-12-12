@@ -8,6 +8,7 @@
     <div class="text-center">
         <img src="{{user.profile.avatar.image.url}}" class="rounded-circle shadow-lg p-2" alt="avatar">
         <img src="{{user.profile.avatar.image_thumbnail.url}}" class="rounded-circle shadow-lg" alt="avatar">
+        <p><a href="{% url 'book_list' %}">My Shelves</a></p>
     </div>
     {% endif %}
 {% endblock %}

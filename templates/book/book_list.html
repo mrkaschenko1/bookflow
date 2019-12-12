@@ -5,17 +5,42 @@
 
 
 {% block content %}
-    {% for shelf_name in shelves %}
-        {{ shelf_name }}
-    {% endfor %}
+{#    {% for shelf_name in shelves %}#}
+{#        {{ shelf_name }}#}
+{#    {% endfor %}#}
     <div class="row">
-      <div class="col-4">
-        <div class="list-group" id="list-tab" role="tablist">
+      <div class="col-12">
+        <div class="list-group list-group-horizontal" id="list-tab" role="tablist">
             {% for shelf in shelves %}
           <a class="list-group-item list-group-item-action {{ shelf.active }}" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
             {% endfor %}
         </div>
       </div>
+    </div>
+    <br>
+    <div class="text-center col-8 offset-2">
+    {% if books_with_time %}
+        {% for book, time in books_with_time %}
+        <div class="card mb-3">
+          <div class="row no-gutters">
+            <div class="col-md-4">
+              <img src="{{ book.small_pic_url }}" height="180" width="auto" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{{book.title}}</h5>
+    {#            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>#}
+                <p class="card-text"><small class="text-muted">added on this shelf {{ time|timesince }} ago</small></p>
+                  <br>
+                  <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ book.google_id }}">Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        You have no books on this shelf
+    {% endif %}
     </div>
     {{ books }}
 {% endblock %}
