@@ -50,6 +50,14 @@
             </div>
         {% endfor %}
         </div>
+        {% else %}
+        <br>
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">Sorry</h4>
+          <p>There is no such book in our database. Check your spelling or look for another book.</p>
+          <hr>
+          <p class="mb-0">Nobody is perfect.</p>
+        </div>
     {% endif %}
 
 {#        {% for item in book_list.items%}#}

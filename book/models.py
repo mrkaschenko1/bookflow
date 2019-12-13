@@ -13,12 +13,13 @@ class BookInfo(models.Model):
 
 class Shelf(models.Model):
     name = models.CharField(max_length=150)
-    books = models.ManyToManyField(BookInfo, related_name='shelves', blank=True)
+    # books = models.ManyToManyField(BookInfo, related_name='shelves', blank=True)
     is_custom = models.BooleanField(default=True)
     profile = models.ForeignKey('accounts.Profile', related_name='shelves', blank=False, on_delete=models.CASCADE)
 
 
-class TimeAdded(models.Model):
-    profile = models.ForeignKey('accounts.Profile', blank=True, null=True, on_delete=models.CASCADE)
-    book = models.ForeignKey(BookInfo, related_name='time_added', blank=False, null=False, on_delete=models.CASCADE)
+class ProfileBookInfo(models.Model):
+    profile = models.ForeignKey('accounts.Profile', related_name='profile_books', blank=True, null=True, on_delete=models.CASCADE)
+    shelf = models.ForeignKey(Shelf, related_name='profile_books', on_delete=models.CASCADE)
+    book = models.ForeignKey(BookInfo, related_name='profile_books', blank=False, null=False, on_delete=models.CASCADE)
     time = models.DateTimeField()
