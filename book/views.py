@@ -18,16 +18,22 @@ class BookSearch(View):
         profile = get_object_or_404(Profile, pk=request.user.id)
         shelves = list(x.name for x in profile.shelves.all())
         print(shelves)
-        apiResponse = None
         queryParam = request.GET.get('query')
         if (queryParam != "" and queryParam is not None):
             query = request.GET['query'].replace(" ", "%20")
             apiResponse = requests.get(f'https://www.googleapis.com/books/v1/volumes?q={query}').json()
+        else:
+            return redirect('book_list')
 
         if apiResponse['totalItems'] == 0:
                 apiResponse = []
+
+        profile_books_objs = profile.books.all()
+        # print(profile_books_objs)
+        profile_books = [profile_books_obj.google_id for profile_books_obj in profile_books_objs]
+        print(profile_books)
             # print(apiResponse)
-        return render(request, 'book/book_search.html', {'book_list': apiResponse, 'shelves': shelves})
+        return render(request, 'book/book_search.html', {'book_list': apiResponse, 'shelves': shelves, 'profile_books': profile_books})
 
 
 class AddToBookshelf(View):
@@ -46,7 +52,7 @@ class AddToBookshelf(View):
             image_link = volume_info.get('imageLinks', {}).get('smallThumbnail', DEFAULT_BOOK_IMAGE_URL)
             book = BookInfo(google_id=id,
                             title=title,
-                            authors=(",").join(volume_info.get('authors', 'Unknown author')),
+                            authors=(",").join(volume_info.get('authors', ['Unknown author'])),
                             description=volume_info.get('description', 'No description'),
                             pageCount=volume_info.get('pageCount', ''),
                             small_pic_url=image_link,
@@ -73,9 +79,6 @@ class AddToBookshelf(View):
 
         print(profile.bio)
         return render(request, 'book/book_add.html', {'book': book_info})
-
-# def get_active_shelf(name, current):
-#     return  "active" ? name == current : ""
 
 
 def show_books(request):
@@ -159,6 +162,7 @@ def move_book(request):
         raise Http404
 
     profile_book_info_obj.shelf = to_shelf_obj
+    profile_book_info_obj.time = datetime.now()
     profile_book_info_obj.save()
 
     messages.success(request, f'Book "{book_obj.title}" was successfully moved from "{from_shelf_name}" to "{to_shelf_name}" shelf')

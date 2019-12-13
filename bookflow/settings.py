@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'columns',
     'django_cleanup.apps.CleanupConfig',
-    'imagekit'
+    'imagekit',
+    'taggit'
     #'bootstrap4',
 ]
 

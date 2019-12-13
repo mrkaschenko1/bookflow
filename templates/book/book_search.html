@@ -32,7 +32,7 @@
                             <p class="card-text">{{item.volumeInfo.description|truncatechars:200}}</p>
                             <p class="card-text"><small class="text-muted">Average rating: {{ item.volumeInfo.averageRating }}</small></p>
                           <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {% if item.id in profile_books %}disabled{% endif %}>
                                 Add to bookshelf
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
