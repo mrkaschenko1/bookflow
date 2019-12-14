@@ -13,9 +13,13 @@ from book.models import BookInfo, Shelf, ProfileBookInfo
 
 DEFAULT_BOOK_IMAGE_URL = "https://previews.123rf.com/images/chupakabrajk/chupakabrajk1811/chupakabrajk181100009/111711652-book-vector-illustration-of-a-textbook-a-book-closed-book-with-the-inscription-book-.jpg"
 
+
 class BookSearch(View):
     def get(self, request):
-        profile = get_object_or_404(Profile, pk=request.user.id)
+        profile = Profile.objects.filter(user=request.user)[0]
+        # print('11111111')
+        # print(profile)
+        # print('11111111')
         shelves = list(x.name for x in profile.shelves.all())
         print(shelves)
         queryParam = request.GET.get('query')
@@ -28,7 +32,10 @@ class BookSearch(View):
         if apiResponse['totalItems'] == 0:
                 apiResponse = []
 
-        profile_books_objs = profile.books.all()
+        if profile.books.all == []:
+            profile_books_objs = []
+        else:
+            profile_books_objs = profile.books.all()
         # print(profile_books_objs)
         profile_books = [profile_books_obj.google_id for profile_books_obj in profile_books_objs]
         print(profile_books)
@@ -38,7 +45,7 @@ class BookSearch(View):
 
 class AddToBookshelf(View):
     def get(self, request, id):
-        profile = get_object_or_404(Profile, pk=request.user.id)
+        profile = Profile.objects.filter(user=request.user)[0]
 
         book_info = requests.get(f'https://www.googleapis.com/books/v1/volumes/{id}').json()
 

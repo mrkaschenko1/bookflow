@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill
 
+from bookflow.constants import DEFAULT_AVATAR
 from book.models import Shelf, BookInfo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -18,12 +19,19 @@ class Profile(models.Model):
 
 
 class Avatar(models.Model):
-    image = models.ImageField(upload_to='avatars', default='default/default_avatar.png')
+    image = models.ImageField(upload_to='avatars', default=DEFAULT_AVATAR)
     image_thumbnail = ImageSpecField(source='image',
                                      processors=[ResizeToFill(40, 40)],
                                      format='PNG',
                                      options={'quality': 60})
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='avatar')
+
+    @property
+    def image_url(self):
+        if self.image:
+            return self.image.url
+        else:
+            return DEFAULT_AVATAR
 
     def save(self, *args, **kwargs):
         super().save()

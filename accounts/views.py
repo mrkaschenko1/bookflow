@@ -13,6 +13,7 @@ from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
 from .models import Profile, Avatar
+from bookflow.constants import DEFAULT_AVATAR
 
 
 class SignUp(SuccessMessageMixin, generic.CreateView):
@@ -48,14 +49,22 @@ def update_profile(request):
         avatar_form = ImageUploadForm(request.POST, request.FILES)
         if user_form.is_valid() and profile_form.is_valid() and avatar_form.is_valid():
             profile = request.user.profile
+            # if not (avatar_form.cleaned_data['image']).to_string().endswith('default_avatar.png'):
             try:
                 Avatar.objects.get(profile=profile)
                 old_avatar = Avatar.objects.get(profile=profile)
-                old_avatar.delete()
+                if avatar_form.cleaned_data['image'] != DEFAULT_AVATAR and old_avatar != DEFAULT_AVATAR:
+                    old_avatar.delete()
+                    avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
+                    avatar.save()
             except:
                 pass
-            avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
-            avatar.save()
+            # if not avatar_form.cleaned_data['image'].endswith('default_avatar.png'):
+            #     avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
+            #     avatar.save()
+            # avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
+            # avatar.save()
+            print(avatar_form.cleaned_data['image'])
             user_form.save()
             profile_form.save()
             messages.success(request, 'Your profile was successfully updated!')
