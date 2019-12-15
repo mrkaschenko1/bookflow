@@ -35,3 +35,6 @@ class ImageUploadForm(forms.ModelForm):
         model = Avatar
         fields = ('image',)
 
+
+class TagForm(forms.Form):
+    new_tags = forms.CharField(label='New tag(s)', max_length=200)

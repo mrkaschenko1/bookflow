@@ -5,9 +5,12 @@ from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import SignUpForm, ImageUploadForm
+from django.views.generic import ListView
+
+from book.models import Tag
+from .forms import SignUpForm, ImageUploadForm, TagForm
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views import View
@@ -25,7 +28,7 @@ class SignUp(SuccessMessageMixin, generic.CreateView):
 
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     # Optional (default: 'registration/password_change_form.html')
-    #template_name = 'accounts/my_password_change_form.html'
+    # template_name = 'accounts/my_password_change_form.html'
     # Optional (default: `reverse_lazy('password_change_done')`)
     success_url = reverse_lazy('home')
 
@@ -34,10 +37,9 @@ class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
         messages.success(self.request, 'Your password has been changed.')
         return super().form_valid(form)
 
+
 class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     template_name = 'accounts/profile.html'
-
-
 
 
 @login_required
@@ -105,23 +107,31 @@ def index(request):
     return render(request, 'home.html')
 
 
-# def upload_pic(request):
-#     if request.method == 'POST':
-#         form = ImageUploadForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             profile = request.user.profile
-#             try:
-#                 Avatar.objects.get(profile=profile)
-#                 old_avatar = Avatar.objects.get(profile=profile)
-#                 old_avatar.delete()
-#             except:
-#                 pass
-#             avatar = Avatar(image=form.cleaned_data['image'], profile=profile)
-#             avatar.save()
-#             messages.success(request, 'Avatar changed!')
-#             return redirect('home')
-#     else:
-#         form = ImageUploadForm()
-#     return render(request, 'accounts/avatar.html', {
-#                   'form': form,
-#     })
+class TagCrudView(ListView):
+    model = Tag
+    template_name = 'accounts/tags.html'
+    context_object_name = 'tags'
+
+
+class CreateCrudTag(View):
+    def get(self, request):
+        profile = request.user.profile
+        title1 = request.GET.get('name', None)
+
+        if Tag.objects.filter(name=title1, profile=profile):
+            data = {
+                'err': 'You already have tag with this name'
+            }
+            return JsonResponse(data)
+        else:
+            obj = Tag.objects.create(
+                name=title1,
+                profile=profile
+            )
+
+            tag = {'id': obj.id, 'name': obj.name}
+
+            data = {
+                'tag': tag
+            }
+            return JsonResponse(data)

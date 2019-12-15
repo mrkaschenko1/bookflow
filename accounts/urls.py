@@ -21,8 +21,11 @@ urlpatterns = [
     path('reset/done/', login_forbidden(auth_views.PasswordResetCompleteView.as_view()), name='password_reset_complete'),
     path('login/', login_forbidden(auth_views.LoginView.as_view()), name='login'),
     path('signup/', login_forbidden(views.SignUp.as_view()), name='signup'),
-    path('update/', views.update_profile, name='update_profile'),
+    path('update/', views.update_profile, name='profile_update'),
     path('password/change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
     path('avatar/delete/', views.delete_pic, name='avatar_delete'),
+    path('tags/manage', views.TagCrudView.as_view(), name='tags_manage'),
+    path('tags/manage/create/', views.CreateCrudTag.as_view(), name='crud_ajax_create'),
+
     # path('avatar/', include('avatar.urls'), name='change_avatar')
 ]

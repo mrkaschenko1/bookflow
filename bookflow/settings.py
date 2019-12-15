@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'columns',
     'django_cleanup.apps.CleanupConfig',
     'imagekit',
-    'taggit'
     #'bootstrap4',
 ]
 
