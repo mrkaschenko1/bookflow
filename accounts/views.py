@@ -16,7 +16,7 @@ from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
 from .models import Profile, Avatar
-from bookflow.constants import DEFAULT_AVATAR
+from bookflow.constants import DEFAULT_AVATAR, TAG_LIMIT
 
 
 class SignUp(SuccessMessageMixin, generic.CreateView):
@@ -122,7 +122,10 @@ class CreateCrudTag(View):
             data = {
                 'err': 'You already have tag with this name'
             }
-            return JsonResponse(data)
+        elif Tag.objects.filter(profile=profile).count() >= TAG_LIMIT:
+            data = {
+                'err': 'You have too much tags, can`t be more'
+            }
         else:
             obj = Tag.objects.create(
                 name=title1,
@@ -134,4 +137,36 @@ class CreateCrudTag(View):
             data = {
                 'tag': tag
             }
-            return JsonResponse(data)
+        return JsonResponse(data)
+
+
+class UpdateCrudTag(View):
+    def  get(self, request):
+        id1 = request.GET.get('id', None)
+        title1 = request.GET.get('name', None)
+
+        obj = Tag.objects.get(id=id1)
+        if Tag.objects.filter(name=title1, profile=request.user.profile).exclude(id=id1):
+            data = {
+                'err': 'You already have tag with this name, try again'
+            }
+
+        else:
+            obj.name = title1
+            obj.save()
+            tag = {'id': obj.id, 'name': obj.name}
+
+            data = {
+                'tag': tag
+            }
+        return JsonResponse(data)
+
+
+class DeleteCrudTag(View):
+    def get(self, request):
+        id1 = request.GET.get('id', None)
+        Tag.objects.get(id=id1, profile=request.user.profile).delete()
+        data = {
+            'deleted': True
+        }
+        return JsonResponse(data)

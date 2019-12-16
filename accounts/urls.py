@@ -25,7 +25,9 @@ urlpatterns = [
     path('password/change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
     path('avatar/delete/', views.delete_pic, name='avatar_delete'),
     path('tags/manage', views.TagCrudView.as_view(), name='tags_manage'),
-    path('tags/manage/create/', views.CreateCrudTag.as_view(), name='crud_ajax_create'),
+    path('tags/manage/create/', views.CreateCrudTag.as_view(), name='crud_ajax_create_tag'),
+    path('tags/manage/update/', views.UpdateCrudTag.as_view(), name='crud_ajax_update_tag'),
+    path('tags/manage/delete/', views.DeleteCrudTag.as_view(), name='crud_ajax_delete_tag'),
 
     # path('avatar/', include('avatar.urls'), name='change_avatar')
 ]

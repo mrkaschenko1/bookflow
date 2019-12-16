@@ -4,7 +4,6 @@
 {% block title %}My Tags{% endblock %}
 
 {% block content %}
-<h1>Django Ajax CRUD</h1>
     <div id="msgs"></div>
 <div class="row">
   <div class="col-md-4 ">
@@ -72,7 +71,7 @@ $("form#addTag").submit(function() {
     if (nameInput) {
         // Create Ajax Call
         $.ajax({
-            url: '{% url "crud_ajax_create" %}',
+            url: '{% url "crud_ajax_create_tag" %}',
             data: {
                 'name': nameInput,
             },
@@ -80,8 +79,7 @@ $("form#addTag").submit(function() {
             success: function (data) {
                 if (data.tag) {
                   appendToTagTable(data.tag);
-                }
-                else if (data.err) {
+                } else if (data.err) {
                     $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
                 }
             }
@@ -104,6 +102,66 @@ function appendToTagTable(tag) {
             </td>
         </tr>
     `);
+}
+$("form#updateTag").submit(function() {
+    var idInput = $('input[name="formId"]').val().trim();
+    var nameInput = $('input[name="formName"]').val().trim();
+    if (nameInput) {
+        // Create Ajax Call
+        $.ajax({
+            url: '{% url "crud_ajax_update_tag" %}',
+            data: {
+                'id': idInput,
+                'name': nameInput
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.tag) {
+                  updateToTagTabel(data.tag);
+                } else if (data.err) {
+                    $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                }
+            }
+        });
+       } else {
+        alert("All fields must have a valid value.");
+    }
+    $('form#updateUser').trigger("reset");
+    $('#myModal').modal('hide');
+    return false;
+});
+function editTag(id) {
+  if (id) {
+    tr_id = "#tag-" + id;
+    var name = $(tr_id).find(".tagName").text();
+    $('#form-id').val(id);
+    $('#form-name').val(name);
+  }
+}
+function updateToTagTabel(tag){
+    $("#tagTable #tag-" + tag.id).children(".tagData").each(function() {
+        var attr = $(this).attr("name");
+        if (attr == "name") {
+          $(this).text(tag.name);
+        }
+      });
+}
+function deleteTag(id) {
+  var action = confirm("Are you sure you want to delete this tag?");
+  if (action !== false) {
+    $.ajax({
+        url: '{% url "crud_ajax_delete_tag" %}',
+        data: {
+            'id': id,
+        },
+        dataType: 'json',
+        success: function (data) {
+            if (data.deleted) {
+              $("#tagTable #tag-" + id).remove();
+            }
+        }
+    });
+  }
 }
 </script>
 {% endblock javascript %}
