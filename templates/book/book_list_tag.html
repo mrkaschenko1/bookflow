@@ -11,7 +11,7 @@
     <div class="row">
       <div class="col-12">
       <br>
-      {% if tags %}
+          {% if tags %}
           <div class="tags text-center">
           <h4>
               {% for tag in tags %}
@@ -19,16 +19,11 @@
               {% endfor %}
           </h4>
           </div>
-      {% endif %}
-        <div class="list-group list-group-horizontal" id="list-tab" role="tablist">
-            {% for shelf in shelves %}
-          <a class="list-group-item list-group-item-action {{ shelf.active }}" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
-            {% endfor %}
-        </div>
+        {% endif %}
       </div>
     </div>
     <br>
-    <div class="text-center col-8 offset-2" style="height: 100%">
+    <div class="text-center col-8 offset-2">
     {% if books_with_info %}
         {% for book, info in books_with_info %}
         <div class="card mb-3">
@@ -69,14 +64,13 @@
               </div>
             </div>
         <div class="card-footer text-muted">
-                    added on this shelf {{ info.time|timesince }} ago
+                    added on shelf {{ info.time|timesince }} ago
         </div>
           </div>
             {% endfor %}
         </div>
-       
+
     {% else %}
-        You have no books on this shelf
+        You have no books with this tag
     {% endif %}
-    {{ books }}
 {% endblock %}

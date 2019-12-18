@@ -135,8 +135,10 @@ def show_books_by_tag(request, tag_name):
     tag_names = [tag.name for tag in request.user.profile.tags.all()]
     if tag_name not in tag_names:
         raise Http404
-    books = ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name)
-    return HttpResponse(books)
+    profile_books = list(ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name))
+    # books = [profile_book_obj.book for profile_book_obj in profile_book_objs]
+
+    return HttpResponse(profile_books)
     # return render(request, 'book/book_list.html',
     #               {'books_with_info': books_with_info,
     #                'tags': tags,
