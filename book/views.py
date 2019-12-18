@@ -30,7 +30,7 @@ class BookSearch(View):
             return redirect('book_list')
 
         if apiResponse['totalItems'] == 0:
-                apiResponse = []
+            apiResponse = []
 
         if profile.books.all == []:
             profile_books_objs = []
@@ -39,8 +39,9 @@ class BookSearch(View):
         # print(profile_books_objs)
         profile_books = [profile_books_obj.google_id for profile_books_obj in profile_books_objs]
         print(profile_books)
-            # print(apiResponse)
-        return render(request, 'book/book_search.html', {'book_list': apiResponse, 'shelves': shelves, 'profile_books': profile_books})
+        # print(apiResponse)
+        return render(request, 'book/book_search.html',
+                      {'book_list': apiResponse, 'shelves': shelves, 'profile_books': profile_books})
 
 
 class AddToBookshelf(View):
@@ -90,6 +91,8 @@ class AddToBookshelf(View):
 
 def show_books(request):
     shelves = Shelf.objects.filter(profile=request.user.profile)
+    tags = request.user.profile.tags.all()
+    # if tags == book.tag.None:
     shelf_names = [shelf.name for shelf in shelves]
     try:
         current_shelf_name = request.GET.get('shelf').replace("%20", " ")
@@ -104,37 +107,40 @@ def show_books(request):
     for name in shelf_names:
         shelf_obj = {
             "name": name,
-            "active": "active" if name==current_shelf_name else ""
+            "active": "active" if name == current_shelf_name else ""
         }
         shelf_objs.append(shelf_obj)
 
     profile_book_objs = list(current_shelf.profile_books.all())
     books = [profile_book_obj.book for profile_book_obj in profile_book_objs]
 
-    # print('!!!!!!!!!!!!')
-    # print(books)
-    # print('!!!!!!!!!!!!')
-
-    if books == []:
-        return render(request, 'book/book_list.html',
-                      {'shelves': shelf_objs,
-                       'now': datetime.now()
-                       })
-    else:
-        time = []
+    books_with_info = []
+    if books != []:
+        books_info = []
         for book in books:
-            time_object = ProfileBookInfo.objects.get(book=book, profile=request.user.profile)
-            time.append(time_object.time)
+            book_info_object = ProfileBookInfo.objects.get(book=book, profile=request.user.profile)
+            books_info.append(book_info_object)
 
-        books_with_time = zip(books, time)
+        print(tags)
+        books_with_info = zip(books, books_info)
 
-        return render(request, 'book/book_list.html',
-                      {'shelves': shelf_objs,
-                       'books_with_time': books_with_time,
-                       'now': datetime.now()
-                       })
-    # shelves_names = ','.join([shelf.name for shelf in shelves])
-    # return HttpResponse(shelves_names)
+    return render(request, 'book/book_list.html',
+                  {'shelves': shelf_objs,
+                   'books_with_info': books_with_info,
+                   'tags': tags,
+                   })
+
+
+def show_books_by_tag(request, tag_name):
+    tag_names = [tag.name for tag in request.user.profile.tags.all()]
+    if tag_name not in tag_names:
+        raise Http404
+    books = ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name)
+    return HttpResponse(books)
+    # return render(request, 'book/book_list.html',
+    #               {'books_with_info': books_with_info,
+    #                'tags': tags,
+    #                })
 
 
 def delete_book(request):
@@ -172,5 +178,8 @@ def move_book(request):
     profile_book_info_obj.time = datetime.now()
     profile_book_info_obj.save()
 
-    messages.success(request, f'Book "{book_obj.title}" was successfully moved from "{from_shelf_name}" to "{to_shelf_name}" shelf')
+    messages.success(request,
+                     f'Book "{book_obj.title}" was successfully moved from "{from_shelf_name}" to "{to_shelf_name}" shelf')
     return redirect('book_list')
+
+

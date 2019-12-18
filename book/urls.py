@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', login_required(views.show_books), name='book_list'),
+    path('tag/<str:tag_name>', login_required(views.show_books_by_tag), name='book_list_by_tag'),
     path('delete/', login_required(views.delete_book), name='delete_book'),
     path('move/', login_required(views.move_book), name='move_book'),
     path('search/', login_required(views.BookSearch.as_view()), name='book_search'),

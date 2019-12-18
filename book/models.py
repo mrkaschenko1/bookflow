@@ -29,11 +29,11 @@ class Tag(models.Model):
     profile = models.ForeignKey('accounts.Profile', related_name='tags', blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.profile.user.username}: {self.name} tag'
+        return self.name
 
 
 class ProfileBookInfo(models.Model):
-    profile = models.ForeignKey('accounts.Profile', related_name='profile_books', blank=True, null=True, on_delete=models.CASCADE)
+    profile = models.ForeignKey('accounts.Profile', related_name='profile_books', blank=False, null=False, on_delete=models.CASCADE)
     shelf = models.ForeignKey(Shelf, related_name='profile_books', on_delete=models.CASCADE)
     book = models.ForeignKey(BookInfo, related_name='profile_books', blank=False, null=False, on_delete=models.CASCADE)
     time = models.DateTimeField()

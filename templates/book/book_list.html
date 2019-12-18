@@ -10,6 +10,16 @@
 {#    {% endfor %}#}
     <div class="row">
       <div class="col-12">
+      <br>
+      {% if tags %}
+          <div class="tags text-center">
+          <h4>
+              {% for tag in tags %}
+                  <a href="#" class="badge badge-pill badge-secondary">{{tag}}</a>
+              {% endfor %}
+          </h4>
+          </div>
+      {% endif %}
         <div class="list-group list-group-horizontal" id="list-tab" role="tablist">
             {% for shelf in shelves %}
           <a class="list-group-item list-group-item-action {{ shelf.active }}" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
@@ -19,8 +29,8 @@
     </div>
     <br>
     <div class="text-center col-8 offset-2">
-    {% if books_with_time %}
-        {% for book, time in books_with_time %}
+    {% if books_with_info %}
+        {% for book, info in books_with_info %}
         <div class="card mb-3">
           <div class="row no-gutters">
             <div class="col-md-3">
@@ -50,11 +60,17 @@
 
                 </div>
               </div>
+            {% if info.tags %}
+        <div class="book-tags text-center">
+        Tags:
+            {{ info.tags.all|join:", " }}
+        </div>
+        {% endif %}
               </div>
             </div>
         <div class="card-footer text-muted">
-                    added on this shelf {{ time|timesince }} ago
-                </div>
+                    added on this shelf {{ info.time|timesince }} ago
+        </div>
           </div>
             {% endfor %}
         </div>
