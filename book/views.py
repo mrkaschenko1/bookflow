@@ -112,21 +112,11 @@ def show_books(request):
         shelf_objs.append(shelf_obj)
 
     profile_book_objs = list(current_shelf.profile_books.all())
-    books = [profile_book_obj.book for profile_book_obj in profile_book_objs]
-
-    books_with_info = []
-    if books != []:
-        books_info = []
-        for book in books:
-            book_info_object = ProfileBookInfo.objects.get(book=book, profile=request.user.profile)
-            books_info.append(book_info_object)
-
-        print(tags)
-        books_with_info = zip(books, books_info)
+    profile_books = [profile_book_obj for profile_book_obj in profile_book_objs]
 
     return render(request, 'book/book_list.html',
                   {'shelves': shelf_objs,
-                   'books_with_info': books_with_info,
+                   'profile_books': profile_books,
                    'tags': tags,
                    })
 
@@ -136,9 +126,15 @@ def show_books_by_tag(request, tag_name):
     if tag_name not in tag_names:
         raise Http404
     profile_books = list(ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name))
+    # books = [profile_book for profile_book in profile_books]
+    # print(books)
     # books = [profile_book_obj.book for profile_book_obj in profile_book_objs]
 
-    return HttpResponse(profile_books)
+    return render(request, 'book/book_list_tag.html',
+                  {'profile_books': profile_books,
+                   'current_tag': tag_name,
+                   'tags': tag_names,
+                   })
     # return render(request, 'book/book_list.html',
     #               {'books_with_info': books_with_info,
     #                'tags': tags,

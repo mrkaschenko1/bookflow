@@ -6,7 +6,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.views.generic import ListView
 
 from book.models import Tag
@@ -27,9 +27,6 @@ class SignUp(SuccessMessageMixin, generic.CreateView):
 
 
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
-    # Optional (default: 'registration/password_change_form.html')
-    # template_name = 'accounts/my_password_change_form.html'
-    # Optional (default: `reverse_lazy('password_change_done')`)
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
@@ -61,11 +58,7 @@ def update_profile(request):
                     avatar.save()
             except:
                 pass
-            # if not avatar_form.cleaned_data['image'].endswith('default_avatar.png'):
-            #     avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
-            #     avatar.save()
-            # avatar = Avatar(image=avatar_form.cleaned_data['image'], profile=profile)
-            # avatar.save()
+
             print(avatar_form.cleaned_data['image'])
             user_form.save()
             profile_form.save()

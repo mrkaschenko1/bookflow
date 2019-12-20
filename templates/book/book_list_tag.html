@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% load custom_tags %}
+
+
+{% block title %}Tag filter{% endblock %}
 
 
 
@@ -11,66 +14,65 @@
     <div class="row">
       <div class="col-12">
       <br>
-          {% if tags %}
+      {% if tags %}
           <div class="tags text-center">
           <h4>
               {% for tag in tags %}
-                  <a href="{% url 'book_list_by_tag' tag %}" class="badge badge-pill badge-secondary">{{tag}}</a>
+                  <a href="{% url 'book_list_by_tag' tag %}" class="badge badge-pill badge-{% get_pill_color tag current_tag %}">{{tag}}</a>
               {% endfor %}
           </h4>
           </div>
-        {% endif %}
+      {% endif %}
       </div>
     </div>
     <br>
-    <div class="text-center col-8 offset-2">
-    {% if books_with_info %}
-        {% for book, info in books_with_info %}
+    <div class="text-center col-8 offset-2" style="height: 100%">
+    {% if profile_books %}
+        {% for profile_book_info in profile_books %}
         <div class="card mb-3">
           <div class="row no-gutters">
             <div class="col-md-3">
-              <img src="{{ book.small_pic_url }}" height="180" width="auto" class="card-img" alt="...">
+              <img src="{{ profile_book_info.book.small_pic_url }}" height="180" width="auto" class="card-img" alt="...">
             </div>
             <div class="col-md-9">
               <div class="card-body">
-                <h5 class="card-title">{{book.title}}</h5>
-              <h6 class="card-title">{{ book.authors }}</h6>
+                <h5 class="card-title">{{profile_book_info.book.title}}</h5>
+              <h6 class="card-title">{{ profile_book_info.book.authors }}</h6>
     {#            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>#}
 {#                <p class="card-text"><small class="text-muted">added on this shelf {{ time|timesince }} ago</small></p>#}
                   <br>
-                <div class="btn-group">
-                  <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Move
-                              </button>
-                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                  {% for shelf in shelves %}
-                                    {% if not shelf.active %}
-                                      <a class="dropdown-item" href="{% url 'move_book' %}?from={{ request.GET.shelf|default:"To Read" }}&to={{ shelf.name }}&id={{ book.google_id }}">{{ shelf.name }}</a>
-                                    {% endif %}
-                                  {% endfor %}
-                              </div>
-                  </div>
-                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ book.google_id }}"><button type="button" class="btn btn-danger">Delete</button></a>
-
-                </div>
+{#                <div class="btn-group">#}
+{#                  <div class="dropdown">#}
+{#                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                                Move#}
+{#                              </button>#}
+{#                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+{#                                  {% for shelf in shelves %}#}
+{#                                    {% if not shelf.active %}#}
+{#                                      <a class="dropdown-item" href="{% url 'move_book' %}?from={{ request.GET.shelf|default:"To Read" }}&to={{ shelf.name }}&id={{ profile_book_info.book.google_id }}">{{ shelf.name }}</a>#}
+{#                                    {% endif %}#}
+{#                                  {% endfor %}#}
+{#                              </div>#}
+{#                  </div>#}
+{#                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-danger">Delete</button></a>#}
+{##}
+{#                </div>#}
               </div>
-            {% if info.tags %}
         <div class="book-tags text-center">
         Tags:
-            {{ info.tags.all|join:", " }}
+            {{ profile_book_info.tags.all|join:", " }}
         </div>
-        {% endif %}
               </div>
             </div>
         <div class="card-footer text-muted">
-                    added on shelf {{ info.time|timesince }} ago
+                    added on this shelf {{ profile_book_info.time|timesince }} ago
         </div>
           </div>
             {% endfor %}
         </div>
 
     {% else %}
-        You have no books with this tag
+        You have no books with this tag yet
     {% endif %}
+{#    {{ books }}#}
 {% endblock %}

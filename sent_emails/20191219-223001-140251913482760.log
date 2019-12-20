@@ -1,0 +1,25 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Password reset on 127.0.0.1:8000
+From: webmaster@localhost
+To: tenforever72@gmail.com
+Date: Thu, 19 Dec 2019 19:30:01 -0000
+Message-ID: <157678380158.8133.5522257367624622707@andreykas-Ward-M105>
+
+
+You're receiving this email because you requested a password reset for your user account at 127.0.0.1:8000.
+
+Please go to the following page and choose a new password:
+
+http://127.0.0.1:8000/accounts/reset/MQ/5ce-06b4433cee8c0cc367bc/
+
+Your username, in case you’ve forgotten: andrey
+
+Thanks for using our site!
+
+The 127.0.0.1:8000 team
+
+
+
+-------------------------------------------------------------------------------
