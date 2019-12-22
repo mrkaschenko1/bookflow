@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django-libs',
     'accounts.apps.AccountsConfig',
     'book.apps.BookConfig',
     'crispy_forms',

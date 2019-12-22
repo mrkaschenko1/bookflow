@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 import requests
@@ -181,3 +181,32 @@ def move_book(request):
     return redirect('book_list')
 
 
+class AddTagToBook(View):
+    def get(self, request):
+
+        id1 = request.GET.get('id', None)
+        print("!!!!!!!")
+        print(id1)
+        print("!!!!!!!")
+
+        tags1 = (request.GET.get('tag', None)).split(',')
+
+        print("!!!!!!!")
+        print(tags1)
+        print("!!!!!!!")
+
+        profile_book_info = ProfileBookInfo.objects.get(id=id1, profile=request.user.profile)
+        if (tags1):
+            for tagId in tags1:
+                tagObj = request.user.profile.tags.filter(id=tagId)[0]
+                profile_book_info.tags.add(tagObj)
+            profile_book_info.save()
+            data = {
+                'tag': tags1,
+                'bookId': id1
+            }
+        else:
+            data = {
+                'err': 'error happened'
+            }
+        return JsonResponse(data)

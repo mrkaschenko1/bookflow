@@ -60,7 +60,9 @@
               </div>
         <div class="book-tags text-center">
         Tags:
-            {{ profile_book_info.tags.all|join:", " }}
+            {% for tag in profile_book_info.tags.all %}
+            <span class="badge badge-pill badge-secondary">{{ tag }}</span>
+            {% endfor %}
         </div>
               </div>
             </div>

@@ -67,7 +67,7 @@
 <script>
 // Create Django Ajax Call
 $("form#addTag").submit(function() {
-    var nameInput = $('input[name="name"]').val().trim();
+    var nameInput = $('[name="name"]').val().trim();
     if (nameInput) {
         // Create Ajax Call
         $.ajax({

@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 
+{% load libs_tags %}
+
 {% block title %}My books{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+{% endblock %}
 
 
 
 {% block content %}
+
+     <div id="msgs"></div>
 {#    {% for shelf_name in shelves %}#}
 {#        {{ shelf_name }}#}
 {#    {% endfor %}#}
@@ -60,12 +67,48 @@
 
                 </div>
               </div>
-            {% if profile_book_info.tags.all %}
         <div class="book-tags text-center">
+            {% if profile_book_info.tags.all %}
         Tags:
-            {{ profile_book_info.tags.all|join:", " }}
+            {% for tag in profile_book_info.tags.all %}
+            <span class="badge badge-pill badge-secondary">{{ tag }}</span>
+            {% endfor %}
+         {% endif %}
+        <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal">+</button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="tagModalLabel">Add tags for this book</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+
+                  <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <label class="text-white mb-3 lead">Choose tags</label>
+                        <!-- Multiselect dropdown -->
+                        <select class="selectpicker form-control" name="tags" multiple data-live-search="true">
+                         {% for tag in request.user.profile.tags|exclude:profile_book_info.tags %}
+                          <option value="{{ tag.id }}">{{ tag }}</option>
+                         {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addTag" onclick="addTags({{ profile_book_info.id }}); $('#tagModal').modal('toggle')">Add tags</button>
+              </div>
+            </div>
+          </div>
         </div>
-        {% endif %}
+        </div>
               </div>
             </div>
         <div class="card-footer text-muted">
@@ -74,9 +117,45 @@
           </div>
             {% endfor %}
         </div>
-       
+
     {% else %}
         You have no books on this shelf
     {% endif %}
 {#    {{ books }}#}
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+<script>
+    $(function () {
+            $('.selectpicker').selectpicker();
+        });
+
+    function addToBookTags(tag, id) {
+        return;
+    }
+
+    function addTags(id) {
+        var tagsInput = $('[name="tags"]').val();
+        console.log(id);
+        console.log(tagsInput);
+        if (tagsInput) {
+            $.ajax({
+                url: '{% url "crud_ajax_add_tag_to_book" %}',
+                data: {
+                    'id': id,
+                    'tag': tagsInput.join(',')
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.tag && data.bookId) {
+                        addToBookTags(data.tag, data.bookId);
+                    } else if (data.err) {
+                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                    }
+                }
+            })
+        }
+    }
+</script>
 {% endblock %}
