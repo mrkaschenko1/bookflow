@@ -67,21 +67,21 @@
 
                 </div>
               </div>
-        <div class="book-tags text-center">
+        <div class="book-tags text-center" id="tagList{{ profile_book_info.id }}">
             {% if profile_book_info.tags.all %}
         Tags:
             {% for tag in profile_book_info.tags.all %}
             <span class="badge badge-pill badge-secondary">{{ tag }}</span>
             {% endfor %}
          {% endif %}
-        <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal">+</button>
+        <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal{{ profile_book_info.id }}" {% if not request.user.profile.tags|exclude:profile_book_info.tags %}disabled{% endif %}>+</button>
 
         <!-- Modal -->
-        <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
+        <div class="modal fade" id="tagModal{{ profile_book_info.id }}" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <form method="GET" action="{% url 'add_tag_to_book' %}">
               <div class="modal-header">
-                <h5 class="modal-title" id="tagModalLabel">Add tags for this book</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -91,10 +91,12 @@
                   <div class="row">
                     <div class="col-lg-6 mx-auto">
                         <label class="text-white mb-3 lead">Choose tags</label>
+                        <input name="id" type="hidden" value="{{profile_book_info.id}}">
+
                         <!-- Multiselect dropdown -->
-                        <select class="selectpicker form-control" name="tags" multiple data-live-search="true">
+                        <select class="selectpicker form-control" name="tag" multiple="multiple" data-live-search="true" required>
                          {% for tag in request.user.profile.tags|exclude:profile_book_info.tags %}
-                          <option value="{{ tag.id }}">{{ tag }}</option>
+                          <option value="{{ tag }}">{{ tag }}</option>
                          {% endfor %}
                         </select>
                     </div>
@@ -103,8 +105,9 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="addTag" onclick="addTags({{ profile_book_info.id }}); $('#tagModal').modal('toggle')">Add tags</button>
+                <button type="submit" class="btn btn-primary">Add tags</button>
               </div>
+                </form>
             </div>
           </div>
         </div>
@@ -131,31 +134,35 @@
             $('.selectpicker').selectpicker();
         });
 
-    function addToBookTags(tag, id) {
-        return;
-    }
-
-    function addTags(id) {
-        var tagsInput = $('[name="tags"]').val();
-        console.log(id);
-        console.log(tagsInput);
-        if (tagsInput) {
-            $.ajax({
-                url: '{% url "crud_ajax_add_tag_to_book" %}',
-                data: {
-                    'id': id,
-                    'tag': tagsInput.join(',')
-                },
-                dataType: 'json',
-                success: function (data) {
-                    if (data.tag && data.bookId) {
-                        addToBookTags(data.tag, data.bookId);
-                    } else if (data.err) {
-                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
-                    }
-                }
-            })
-        }
-    }
+    {#function addToBookTags(tag, id) {#}
+    {#    tag.forEach(element => {#}
+    {#        $("#tagList" + id + ":last-child").append(`#}
+    {#            <span class="badge badge-pill badge-secondary">${element}</span>#}
+    {#        `);#}
+    {#    });#}
+    {#}#}
+    {##}
+    {#function addTags(id) {#}
+    {#    var tagsInput = $('[name="tags"]').val();#}
+    {#    console.log(id);#}
+    {#    console.log(tagsInput);#}
+    {#    if (tagsInput) {#}
+    {#        $.ajax({#}
+    {#            url: '{% url "crud_ajax_add_tag_to_book" %}',#}
+    {#            data: {#}
+    {#                'id': id,#}
+    {#                'tag': tagsInput.join(',')#}
+    {#            },#}
+    {#            dataType: 'json',#}
+    {#            success: function (data) {#}
+    {#                if (data.tag && data.bookId) {#}
+    {#                    addToBookTags(data.tag, data.bookId);#}
+    {#                } else if (data.err) {#}
+    {#                    $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);#}
+    {#                }#}
+    {#            }#}
+    {#        })#}
+    {#    }#}
+    {#}#}
 </script>
 {% endblock %}

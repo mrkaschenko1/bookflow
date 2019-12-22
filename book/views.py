@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views import View
 import requests
 from django.views.decorators.csrf import csrf_exempt
@@ -185,28 +186,21 @@ class AddTagToBook(View):
     def get(self, request):
 
         id1 = request.GET.get('id', None)
-        print("!!!!!!!")
-        print(id1)
-        print("!!!!!!!")
 
-        tags1 = (request.GET.get('tag', None)).split(',')
-
+        tags1 = request.GET.getlist('tag', None)
         print("!!!!!!!")
         print(tags1)
         print("!!!!!!!")
 
         profile_book_info = ProfileBookInfo.objects.get(id=id1, profile=request.user.profile)
+        current_shelf = profile_book_info.shelf.name.replace(" ", "%20")
         if (tags1):
-            for tagId in tags1:
-                tagObj = request.user.profile.tags.filter(id=tagId)[0]
+            for tagName in tags1:
+                tagObj = request.user.profile.tags.get(name=tagName)
                 profile_book_info.tags.add(tagObj)
             profile_book_info.save()
-            data = {
-                'tag': tags1,
-                'bookId': id1
-            }
+            messages.success(request, f'You\'ve added some tags for "{profile_book_info.book.title}" book')
         else:
-            data = {
-                'err': 'error happened'
-            }
-        return JsonResponse(data)
+            messages.warning(request, f'No tags were added for "{profile_book_info.book.title}" book')
+
+        return redirect(reverse('book_list')+f'?shelf={current_shelf}')

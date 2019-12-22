@@ -10,5 +10,5 @@ urlpatterns = [
     path('move/', login_required(views.move_book), name='move_book'),
     path('search/', login_required(views.BookSearch.as_view()), name='book_search'),
     re_path(r'^search/add/(?P<id>.{1,20})/$', login_required(views.AddToBookshelf.as_view()), name='book_add'),
-    path('ajax/add/tags', login_required(AddTagToBook.as_view()), name='crud_ajax_add_tag_to_book'),
+    path('add/tags/', login_required(AddTagToBook.as_view()), name='add_tag_to_book'),
 ]
