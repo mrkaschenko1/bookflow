@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% load libs_tags %}
+{% load static %}
+
 
 {% block title %}My books{% endblock %}
 {% block styles %}
@@ -73,7 +75,7 @@
         Tags:
 
             {% for tag in profile_book_info.tags.all %}
-            <span class="badge badge-pill badge-secondary">{{ tag }}</span>
+                <a class="badge badge-pill badge-secondary" name="{{ tag }}" style="font-size: small">{{ tag }} <span style="cursor: pointer" onclick="deleteTag({{ profile_book_info.id }}, '{{ tag.name }}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
             {% endfor %}
          {% endif %}
         </section>
@@ -108,7 +110,9 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" onclick="addTags({{ profile_book_info.id }}); $('#tagModal{{ profile_book_info.id }}').modal('toggle')" class="btn btn-primary">Add tags</button>
+                <button type="button"
+                        onclick="addTags({{ profile_book_info.id }}); $('#tagModal{{ profile_book_info.id }}').modal('toggle');"
+                        class="btn btn-primary">Add tags</button>
               </div>
             </div>
           </div>
@@ -134,28 +138,26 @@
 <script>
     $(function () {
             $('.selectpicker').selectpicker();
-        });
+    });
 
     function addToBookTags(tag, id) {
         console.log('addToBookTags vars:');
         console.log(tag);
         tag.forEach(element => {
             $("#tagList" + id + " section").append(`
-                <span class="badge badge-pill badge-secondary">${element}</span>
+                <a class="badge badge-pill badge-secondary" name="${element}" style="font-size: small">${element}<span style="cursor: pointer" onclick="deleteTag(${id}, '${element}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
+                {#<span class="badge badge-pill badge-secondary" name="${element}">${element}</span>#}
             `);
-            {#$('.selectpicker').selectpicker('deselectAll');#}
+            $('#tagList' + id + ' .selectpicker').find('option[value='+element+']').remove();
+            $('.selectpicker').selectpicker('refresh');
 
         });
-        $(".selected").remove();
-        $('.selectpicker').selectpicker('refresh');
         $('.selectpicker').selectpicker('deselectAll');
     }
 
     function addTags(id) {
         var tagIdName = "tag" + id;
         var tagsInput = $('[name='+ tagIdName +']').val();
-        console.log(id);
-        console.log(tagsInput);
         if (tagsInput) {
             $.ajax({
                 url: '{% url "add_tag_to_book" %}',
@@ -173,6 +175,39 @@
                 }
             })
         }
+    }
+
+    function changeTagsOnDelete(bookId, tagName) {
+        $("#tagList" + bookId + " section").find('a[name="'+tagName+'"]').remove();
+        {#$('#tagList' + bookId + ' option[value="'+ tagName +'"] ').remove();#}
+        $('#tagList' + bookId + ' ul.show').append(`
+        <li><a role="option" class="dropdown-item" aria-disabled="false" tabindex="0" aria-selected="false"><span class=" bs-ok-default check-mark"></span><span class="text">${tagName}</span></a></li>
+        `);
+        $('#tagList' + bookId + ' .selectpicker').append(`
+        <option value="${tagName}">${tagName}</option>
+        `);
+        $('.selectpicker').selectpicker('refresh');
+        $('.selectpicker').selectpicker('deselectAll');
+    }
+
+    function deleteTag(bookId, tagName) {
+        var tagIdName = "tag" + bookId;
+
+        $.ajax({
+            url: '{% url "delete_tag_from_book" %}',
+            data: {
+                'bookId': bookId,
+                'tagName': tagName
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.tagName && data.bookId) {
+                    changeTagsOnDelete(data.bookId, data.tagName);
+                } else if (data.err) {
+                    $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                }
+            }
+        })
     }
 </script>
 {% endblock %}

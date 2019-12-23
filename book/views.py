@@ -217,7 +217,6 @@ class AddTagToBookAjax(View):
         print("!!!!!!!")
 
         profile_book_info = ProfileBookInfo.objects.get(id=id1, profile=request.user.profile)
-        current_shelf = profile_book_info.shelf.name.replace(" ", "%20")
         if (tags1):
             for tagName in tags1:
                 tagObj = request.user.profile.tags.get(name=tagName)
@@ -230,4 +229,24 @@ class AddTagToBookAjax(View):
         else:
             data = {'err': 'error occured'}
 
+        return JsonResponse(data)
+
+
+class DeleteTagFromBookAjax(View):
+    def get(self, request):
+        bookId = request.GET.get('bookId', None)
+        tagName = request.GET.get('tagName', None)
+
+        profile_book_info = ProfileBookInfo.objects.get(id=bookId, profile=request.user.profile)
+        if (tagName and bookId):
+            tagObj = request.user.profile.tags.get(name=tagName)
+            profile_book_info.tags.remove(tagObj)
+            profile_book_info.save()
+
+            data = {
+                'bookId': bookId,
+                'tagName': tagName
+            }
+        else:
+            data = {'err': 'error occured'}
         return JsonResponse(data)
