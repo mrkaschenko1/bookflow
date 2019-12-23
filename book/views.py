@@ -115,7 +115,7 @@ def show_books(request):
     profile_book_objs = list(current_shelf.profile_books.all())
     profile_books = [profile_book_obj for profile_book_obj in profile_book_objs]
 
-    return render(request, 'book/book_list.html',
+    return render(request, 'book/book_list_ajax.html',
                   {'shelves': shelf_objs,
                    'profile_books': profile_books,
                    'tags': tags,
@@ -204,3 +204,30 @@ class AddTagToBook(View):
             messages.warning(request, f'No tags were added for "{profile_book_info.book.title}" book')
 
         return redirect(reverse('book_list')+f'?shelf={current_shelf}')
+
+
+class AddTagToBookAjax(View):
+    def get(self, request):
+
+        id1 = request.GET.get('id', None)
+
+        tags1 = request.GET.getlist('tag[]', None)
+        print("!!!!!!!")
+        print(tags1)
+        print("!!!!!!!")
+
+        profile_book_info = ProfileBookInfo.objects.get(id=id1, profile=request.user.profile)
+        current_shelf = profile_book_info.shelf.name.replace(" ", "%20")
+        if (tags1):
+            for tagName in tags1:
+                tagObj = request.user.profile.tags.get(name=tagName)
+                profile_book_info.tags.add(tagObj)
+            profile_book_info.save()
+            data = {
+                'tag': tags1,
+                'bookId': id1
+            }
+        else:
+            data = {'err': 'error occured'}
+
+        return JsonResponse(data)
