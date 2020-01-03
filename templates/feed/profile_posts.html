@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% load libs_tags %}
+
 {% block title %}My Posts{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+{% endblock %}
 
 {% block content %}
     <div id="msgs"></div>
@@ -17,33 +23,74 @@
           <label>
               <textarea class="form-control" name="body" placeholder="title" required></textarea>
           </label>
+
+{#          !!!!!!!!!!!!!!!!!!!!!!!!!!!#}
+
+        <select class="selectpicker form-control" name="bookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3" required>
+         {% for book in request.user.profile.books.all %}
+          <option value="{{ book.id }}">{{ book.title }}</option>
+         {% endfor %}
+        </select>
+
+
+{#      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1#}
+
       </div>
-      <button class="btn btn-primary form-control" type="submit">Add Post</button>
+      <button class="btn btn-outline-primary" type="submit">Add Post</button>
     </form>
   </div>
   <div class="col-md-8">
-    <h3>My Posts</h3>
-    <table id="postTable" class="table table-striped">
-      <tr>
-        <th>Post</th>
-      </tr>
-      {% if posts %}
+      <h3>My Posts</h3>
+{#    table    #}
+
+{#      <table id="postTable" class="table table-striped">#}
+{#      <tr>#}
+{#        <th>Post</th>#}
+{#      </tr>#}
+{#      {% if posts %}#}
+{#      {% for post in posts %}#}
+{#      <tr id="post-{{post.id}}">#}
+{#          <td class="postTitle postData" name="title">{{post.title}}</td>#}
+{#          <td class="postBody postData" name="body">{{post.body}}</td>#}
+{#          <td align="center">#}
+{#              <button class="btn btn-success form-control" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>#}
+{#          </td>#}
+{#          <td align="center">#}
+{#              <button class="btn btn-danger form-control" onClick="deletePost({{post.id}})">DELETE</button>#}
+{#          </td>#}
+{#      </tr>#}
+{#      {% endfor %}#}
+{#      {% else %}#}
+{#        No Posts#}
+{#      {% endif %}#}
+{#    </table>#}
+
+{#  endtable  #}
+
+  <div id="postDiv">
+  {% if posts %}
       {% for post in posts %}
-      <tr id="post-{{post.id}}">
-          <td class="postTitle postData" name="title">{{post.title}}</td>
-          <td class="postBody postData" name="body">{{post.body}}</td>
-          <td align="center">
-              <button class="btn btn-success form-control" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
-          </td>
-          <td align="center">
-              <button class="btn btn-danger form-control" onClick="deletePost({{post.id}})">DELETE</button>
-          </td>
-      </tr>
-      {% endfor %}
-      {% else %}
-        No Posts
-      {% endif %}
-    </table>
+  <div class="card text-center mb-5 id="post-{{post.id}}">
+      <div class="card-header">
+        <img src="{{ user.profile.avatar.image_thumbnail.url }}" alt="avatar">
+      </div>
+      <div class="card-body">
+        <h5 class="card-title postData" name="title">{{ post.title }}</h5>
+        <p class="card-text postData" name="body">{{ post.body }}</p>
+              <button class="btn btn-outline-success" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
+              <button class="btn btn-outline-danger" onClick="deletePost({{post.id}})">DELETE</button>
+      </div>
+      <div class="card-footer text-muted">
+        created {{ post.created_at|timesince }} ago
+      </div>
+  </div>
+  {% endfor %}
+  {% else %}
+    No Posts
+  {% endif %}
+  </div>
+
+
   </div>
 </div>
 </div>
@@ -59,7 +106,7 @@
     <div class="modal-body">
         <input class="form-control" id="form-id" type="hidden" name="formId"/>
         <label for="title">Post title</label>
-        <input class="form-control" id="form-title" type="text" name="formTitle"/>
+        <input class="form-control" id="form-title" type="text" name="formTitle">
         <label for="body">Post body</label>
         <input class="form-control" id="form-body" type="text" name="formBody"/>
     </div>
@@ -73,11 +120,19 @@
 {% endblock %}
 
 {% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
 <script>
+    $(function () {
+            $('.selectpicker').selectpicker();
+    });
 // Create Django Ajax Call
 $("form#addPost").submit(function() {
     var titleInput = $('[name="title"]').val().trim();
     var bodyInput = $('[name="body"]').val().trim();
+    var booksInput = $('[name="bookSelect"]').val();
+    console.log(booksInput);
+    $('.selectpicker').selectpicker('deselectAll');
+
     if (titleInput && bodyInput) {
         // Create Ajax Call
         $.ajax({
@@ -86,6 +141,7 @@ $("form#addPost").submit(function() {
             data: {
                 'title': titleInput,
                 'body': bodyInput,
+                'books': booksInput,
                 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
             },
             dataType: 'json',
@@ -104,19 +160,21 @@ $("form#addPost").submit(function() {
     return false;
 });
 function appendToPostTable(post) {
-  $("#postTable > tbody:last-child").append(`
-        <tr id="post-${post.id}">
-            <td class="postTitle" name="title">${post.title}</td>
-            <td class="postBody" name="body">${post.body}</td>
-
-            '<td align="center">
-                <button class="btn btn-success form-control" onClick="editPost(${post.id})" data-toggle="modal" data-target="#myModal")">EDIT</button>
-            </td>
-            <td align="center">
-                <button class="btn btn-danger form-control" onClick="deletePost(${post.id})">DELETE</button>
-            </td>
-        </tr>
-    `);
+    $("#postDiv").prepend(`
+        <div class="card text-center mb-5" id="post-${post.id}">
+          <div class="card-header">
+            <img src="{{ user.profile.avatar.image_thumbnail.url }}" alt="avatar">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title postData" name="title">${post.title}</h5>
+            <p class="card-text postData" name="body">${post.body}</p>
+                  <button class="btn btn-outline-success" onClick="editPost(${post.id})" data-toggle="modal" data-target="#myModal")">EDIT</button>
+                  <button class="btn btn-outline-danger" onClick="deletePost(${post.id})">DELETE</button>
+          </div>
+          <div class="card-footer text-muted">
+            created {{ post.created_at|timesince }} ago
+          </div>
+        </div>`);
 }
 $("form#updatePost").submit(function() {
     var idInput = $('input[name="formId"]').val().trim();
@@ -155,11 +213,10 @@ function editPost(id) {
     tr_id = "#post-" + id;
     var name = $(tr_id).find(".postName").text();
     $('#form-id').val(id);
-    {#$('#form-title').val(title);#}
   }
 }
 function updateToPostTabel(post){
-    $("#postTable #post-" + post.id).children(".postData").each(function() {
+    $("#postDiv #post-" + post.id + " .card-body .postData").each(function() {
         var attr = $(this).attr("name");
         if (attr == "title") {
           $(this).text(post.title);
@@ -179,7 +236,7 @@ function deletePost(id) {
         dataType: 'json',
         success: function (data) {
             if (data.deleted) {
-              $("#postTable #post-" + id).remove();
+              $("#postDiv #post-" + id).remove();
             }
         }
     });

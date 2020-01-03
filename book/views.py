@@ -112,7 +112,7 @@ def show_books(request):
         }
         shelf_objs.append(shelf_obj)
 
-    profile_book_objs = list(current_shelf.profile_books.all())
+    profile_book_objs = list(current_shelf.profile_books.all().order_by('-time'))
     profile_books = [profile_book_obj for profile_book_obj in profile_book_objs]
 
     return render(request, 'book/book_list_ajax.html',
@@ -126,7 +126,7 @@ def show_books_by_tag(request, tag_name):
     tag_names = [tag.name for tag in request.user.profile.tags.all()]
     if tag_name not in tag_names:
         raise Http404
-    profile_books = list(ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name))
+    profile_books = list(ProfileBookInfo.objects.filter(profile=request.user.profile, tags__name__exact=tag_name).order_by('-time'))
     # books = [profile_book for profile_book in profile_books]
     # print(books)
     # books = [profile_book_obj.book for profile_book_obj in profile_book_objs]

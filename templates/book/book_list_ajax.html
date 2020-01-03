@@ -10,9 +10,7 @@
 {% endblock %}
 
 
-
 {% block content %}
-
      <div id="msgs"></div>
 {#    {% for shelf_name in shelves %}#}
 {#        {{ shelf_name }}#}
@@ -54,7 +52,7 @@
                   <br>
                 <div class="btn-group">
                   <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Move
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -65,7 +63,7 @@
                                   {% endfor %}
                               </div>
                   </div>
-                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-danger">Delete</button></a>
+                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
 
                 </div>
               </div>
@@ -75,11 +73,11 @@
         Tags:
 
             {% for tag in profile_book_info.tags.all %}
-                <a class="badge badge-pill badge-secondary" name="{{ tag }}" style="font-size: small">{{ tag }} <span style="cursor: pointer" onclick="deleteTag({{ profile_book_info.id }}, '{{ tag.name }}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
+                <a class="badge badge-pill badge-outlined badge-secondary" name="{{ tag }}" style="font-size: small">{{ tag }} <span style="cursor: pointer" onclick="deleteTag({{ profile_book_info.id }}, '{{ tag.name }}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
             {% endfor %}
          {% endif %}
         </section>
-        <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal{{ profile_book_info.id }}" {% if not request.user.profile.tags|exclude:profile_book_info.tags %}disabled{% endif %}>add tags</button>
+        <button type="button" class="badge badge-pill badge-primary badge-outlined" data-toggle="modal" data-target="#tagModal{{ profile_book_info.id }}" {% if not request.user.profile.tags|exclude:profile_book_info.tags %}disabled{% endif %}>add tags</button>
 
         <!-- Modal -->
         <div class="modal fade" id="tagModal{{ profile_book_info.id }}" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
@@ -145,7 +143,7 @@
         console.log(tag);
         tag.forEach(element => {
             $("#tagList" + id + " section").append(`
-                <a class="badge badge-pill badge-secondary" name="${element}" style="font-size: small">${element}<span style="cursor: pointer" onclick="deleteTag(${id}, '${element}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
+                <a class="badge badge-pill badge-secondary badge-outlined" name="${element}" style="font-size: small">${element}<span style="cursor: pointer" onclick="deleteTag(${id}, '${element}')"><img src="{% static 'icons/delete-button.png' %}" height="16"></span></a>
                 {#<span class="badge badge-pill badge-secondary" name="${element}">${element}</span>#}
             `);
             $('#tagList' + id + ' .selectpicker').find('option[value='+element+']').remove();

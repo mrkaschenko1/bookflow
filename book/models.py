@@ -37,7 +37,7 @@ class ProfileBookInfo(models.Model):
     shelf = models.ForeignKey(Shelf, related_name='profile_books', on_delete=models.CASCADE)
     book = models.ForeignKey(BookInfo, related_name='profile_books', blank=False, null=False, on_delete=models.CASCADE)
     time = models.DateTimeField()
-    tags = models.ManyToManyField(Tag, related_name='profile_books')
+    tags = models.ManyToManyField(Tag, related_name='profile_book')
 
     def __str__(self):
         return f'{self.profile.user.username}: {self.book.title} book'

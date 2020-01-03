@@ -1,10 +1,12 @@
 from time import timezone
 
+from django.core import serializers
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic import ListView
 
+from book.models import BookInfo
 from .forms import *
 from pusher import Pusher
 import json
@@ -18,9 +20,11 @@ pusher = Pusher(
 
 
 class PostCrudView(ListView):
-    model = Post
     template_name = 'feed/profile_posts.html'
     context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(user=self.request.user).order_by('-created_at')
 
 
 class CreateCrudPost(View):
@@ -28,22 +32,24 @@ class CreateCrudPost(View):
         user = request.user
         title1 = request.POST.get('title', None)
         body1 = request.POST.get('body', None)
+        books1 = request.POST.get('books[]', None)
 
-        # if Post.objects.filter(title=title1, , profile=profile):
-        #     data = {
-        #         'err': 'You already have tag with this name'
-        #     }
-        # elif Tag.objects.filter(profile=profile).count() >= TAG_LIMIT:
-        #     data = {
-        #         'err': 'You have too much tags, can`t be more'
-        #     }
         obj = Post.objects.create(
             title=title1,
             body=body1,
             user=user
         )
 
-        post = {'id': obj.id, 'title': obj.title, 'body': obj.body, 'created_at': obj.created_at}
+
+        if books1 is not None:
+            for book in books1:
+                bookObj = BookInfo.objects.filter(pk=book)[0]
+                obj.books.add(bookObj)
+
+        books = serializers.serialize("json", obj.books.all())
+        print(books)
+
+        post = {'id': obj.id, 'title': obj.title, 'body': obj.body, 'created_at': obj.created_at, 'books': books}
 
         data = {
             'post': post

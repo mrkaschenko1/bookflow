@@ -52,7 +52,7 @@
                   <br>
                 <div class="btn-group">
                   <div class="dropdown">
-                              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Move
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -63,7 +63,7 @@
                                   {% endfor %}
                               </div>
                   </div>
-                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-danger">Delete</button></a>
+                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
 
                 </div>
               </div>
@@ -71,7 +71,7 @@
             {% if profile_book_info.tags.all %}
         Tags:
             {% for tag in profile_book_info.tags.all %}
-            <span class="badge badge-pill badge-secondary">{{ tag }}</span>
+            <span class="badge badge-pill badge-outline-secondary">{{ tag }}</span>
             {% endfor %}
          {% endif %}
         <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal{{ profile_book_info.id }}" {% if not request.user.profile.tags|exclude:profile_book_info.tags %}disabled{% endif %}>add tags</button>
