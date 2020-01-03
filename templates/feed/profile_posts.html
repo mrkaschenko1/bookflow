@@ -77,8 +77,15 @@
       <div class="card-body">
         <h5 class="card-title postData" name="title">{{ post.title }}</h5>
         <p class="card-text postData" name="body">{{ post.body }}</p>
-              <button class="btn btn-outline-success" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
-              <button class="btn btn-outline-danger" onClick="deletePost({{post.id}})">DELETE</button>
+          <div class="text-center">
+              {% if post.books %}
+                  {% for book in post.books.all %}
+                      <img src="{{book.small_pic_url}}" class="img-thumbnail" alt="...">
+                  {% endfor %}
+              {% endif %}
+          </div>
+              <button class="btn btn-outline-success" style="float: right" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
+              <button class="btn btn-outline-danger" style="float: right" onClick="deletePost({{post.id}})">DELETE</button>
       </div>
       <div class="card-footer text-muted">
         created {{ post.created_at|timesince }} ago
@@ -141,7 +148,7 @@ $("form#addPost").submit(function() {
             data: {
                 'title': titleInput,
                 'body': bodyInput,
-                'books': booksInput,
+                'books[]': booksInput,
                 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
             },
             dataType: 'json',

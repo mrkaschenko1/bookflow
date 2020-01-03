@@ -32,7 +32,7 @@ class CreateCrudPost(View):
         user = request.user
         title1 = request.POST.get('title', None)
         body1 = request.POST.get('body', None)
-        books1 = request.POST.get('books[]', None)
+        books1 = request.POST.getlist('books[]', None)
 
         obj = Post.objects.create(
             title=title1,
@@ -40,10 +40,13 @@ class CreateCrudPost(View):
             user=user
         )
 
+        print("!!!!!!!!!1")
+        print(books1)
+        print("!!!!!!!!!1")
 
         if books1 is not None:
             for book in books1:
-                bookObj = BookInfo.objects.filter(pk=book)[0]
+                bookObj = BookInfo.objects.get(id=book)
                 obj.books.add(bookObj)
 
         books = serializers.serialize("json", obj.books.all())
