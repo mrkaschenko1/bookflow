@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Posts{% endblock %}
+
+{% block content %}
+    <div id="msgs"></div>
+<div class="row">
+  <div class="col-md-4 ">
+    <h3>ADD POST</h3>
+    <form id="addPost" action="" method="post">
+        {% csrf_token %}
+      <div class="form-group">
+          <label>
+              <input class="form-control" type="text" name="title" placeholder="title" required>
+          </label>
+          <label>
+              <textarea class="form-control" name="body" placeholder="title" required></textarea>
+          </label>
+      </div>
+      <button class="btn btn-primary form-control" type="submit">Add Post</button>
+    </form>
+  </div>
+  <div class="col-md-8">
+    <h3>My Posts</h3>
+    <table id="postTable" class="table table-striped">
+      <tr>
+        <th>Post</th>
+      </tr>
+      {% if posts %}
+      {% for post in posts %}
+      <tr id="post-{{post.id}}">
+          <td class="postTitle postData" name="title">{{post.title}}</td>
+          <td class="postBody postData" name="body">{{post.body}}</td>
+          <td align="center">
+              <button class="btn btn-success form-control" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
+          </td>
+          <td align="center">
+              <button class="btn btn-danger form-control" onClick="deletePost({{post.id}})">DELETE</button>
+          </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+        No Posts
+      {% endif %}
+    </table>
+  </div>
+</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <h4 class="modal-title" id="myModalLabel">Update Post</h4>
+    </div>
+    <form id="updatePost" action="" method="post">{% csrf_token %}
+    <div class="modal-body">
+        <input class="form-control" id="form-id" type="hidden" name="formId"/>
+        <label for="title">Post title</label>
+        <input class="form-control" id="form-title" type="text" name="formTitle"/>
+        <label for="body">Post body</label>
+        <input class="form-control" id="form-body" type="text" name="formBody"/>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" >Save changes</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+// Create Django Ajax Call
+$("form#addPost").submit(function() {
+    var titleInput = $('[name="title"]').val().trim();
+    var bodyInput = $('[name="body"]').val().trim();
+    if (titleInput && bodyInput) {
+        // Create Ajax Call
+        $.ajax({
+            type:'POST',
+            url: '{% url "crud_ajax_create_post" %}',
+            data: {
+                'title': titleInput,
+                'body': bodyInput,
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.post) {
+                  appendToPostTable(data.post);
+                } else if (data.err) {
+                    $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                }
+            }
+        });
+      } else {
+        alert("Field must have a valid value.");
+    }
+    $('form#addPost').trigger("reset");
+    return false;
+});
+function appendToPostTable(post) {
+  $("#postTable > tbody:last-child").append(`
+        <tr id="post-${post.id}">
+            <td class="postTitle" name="title">${post.title}</td>
+            <td class="postBody" name="body">${post.body}</td>
+
+            '<td align="center">
+                <button class="btn btn-success form-control" onClick="editPost(${post.id})" data-toggle="modal" data-target="#myModal")">EDIT</button>
+            </td>
+            <td align="center">
+                <button class="btn btn-danger form-control" onClick="deletePost(${post.id})">DELETE</button>
+            </td>
+        </tr>
+    `);
+}
+$("form#updatePost").submit(function() {
+    var idInput = $('input[name="formId"]').val().trim();
+    var titleInput = $('input[name="formTitle"]').val().trim();
+    var bodyInput = $('input[name="formBody"]').val().trim();
+
+    if (titleInput && bodyInput) {
+        // Create Ajax Call
+        $.ajax({
+            type:'POST',
+            url: '{% url "crud_ajax_update_post" %}',
+            data: {
+                'id': idInput,
+                'title': titleInput,
+                'body': bodyInput,
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.post) {
+                  updateToPostTabel(data.post);
+                } else if (data.err) {
+                    $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                }
+            }
+        });
+       } else {
+        alert("All fields must have a valid value.");
+    }
+    $('form#updateUser').trigger("reset");
+    $('#myModal').modal('hide');
+    return false;
+});
+function editPost(id) {
+  if (id) {
+    tr_id = "#post-" + id;
+    var name = $(tr_id).find(".postName").text();
+    $('#form-id').val(id);
+    {#$('#form-title').val(title);#}
+  }
+}
+function updateToPostTabel(post){
+    $("#postTable #post-" + post.id).children(".postData").each(function() {
+        var attr = $(this).attr("name");
+        if (attr == "title") {
+          $(this).text(post.title);
+        } else if (attr == "body") {
+          $(this).text(post.body);
+        }
+      });
+}
+function deletePost(id) {
+  var action = confirm("Are you sure you want to delete this post?");
+  if (action !== false) {
+    $.ajax({
+        url: '{% url "crud_ajax_delete_post" %}',
+        data: {
+            'id': id,
+        },
+        dataType: 'json',
+        success: function (data) {
+            if (data.deleted) {
+              $("#postTable #post-" + id).remove();
+            }
+        }
+    });
+  }
+}
+</script>
+{% endblock javascript %}

@@ -1,0 +1,7 @@
+django<3.0,>=1.8.10
+stream-python>=3.0.1
+pytz
+
+[test]
+httpretty==0.9.5
+coverage

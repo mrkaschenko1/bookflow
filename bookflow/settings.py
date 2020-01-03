@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     # 'django-libs',
     'accounts.apps.AccountsConfig',
     'book.apps.BookConfig',
+    'feed.apps.FeedConfig',
     'crispy_forms',
     'columns',
     'django_cleanup.apps.CleanupConfig',
     'imagekit',
+    'django_extensions',
     #'bootstrap4',
 ]
 

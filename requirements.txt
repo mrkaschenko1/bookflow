@@ -1,3 +1,4 @@
+pusher
 Pillow
 asgiref==3.2.3
 beautifulsoup4==4.8.1
