@@ -21,12 +21,12 @@
               <input class="form-control" type="text" name="title" placeholder="title" required>
           </label>
           <label>
-              <textarea class="form-control" name="body" placeholder="title" required></textarea>
+              <textarea class="form-control" name="body" placeholder="content" required></textarea>
           </label>
 
 {#          !!!!!!!!!!!!!!!!!!!!!!!!!!!#}
 
-        <select class="selectpicker form-control" name="bookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3" required>
+        <select class="selectpicker form-control" name="bookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3">
          {% for book in request.user.profile.books.all %}
           <option value="{{ book.id }}">{{ book.title }}</option>
          {% endfor %}
@@ -70,22 +70,37 @@
   <div id="postDiv">
   {% if posts %}
       {% for post in posts %}
-  <div class="card text-center mb-5 id="post-{{post.id}}">
+  <div class="card text-center mb-5" id="post-{{post.id}}">
       <div class="card-header">
-        <img src="{{ user.profile.avatar.image_thumbnail.url }}" alt="avatar">
+        <div class="dropdown text-right">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ post.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ post.id }}">
+{#            <a class="dropdown-item" href="#">#}
+                <button class="dropdown-item btn btn-outline-success" style="float: right" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">edit</button>
+                <button class="dropdown-item btn btn-outline-danger" style="float: right" onClick="deletePost({{post.id}})">delete</button>
+{#            </a>#}
+
+          </div>
+        </div>
       </div>
       <div class="card-body">
         <h5 class="card-title postData" name="title">{{ post.title }}</h5>
         <p class="card-text postData" name="body">{{ post.body }}</p>
           <div class="text-center">
-              {% if post.books %}
+              {% if post.books.all %}
+                  <button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseforpost-{{ post.id }}" aria-expanded="false" aria-controls="collapseExample">
+                    Tap to see attached books
+                  </button>
+                  <div class="collapse" id="collapseforpost-{{ post.id }}">
                   {% for book in post.books.all %}
-                      <img src="{{book.small_pic_url}}" class="img-thumbnail" alt="...">
+                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">
                   {% endfor %}
+                  </div>
               {% endif %}
           </div>
-              <button class="btn btn-outline-success" style="float: right" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>
-              <button class="btn btn-outline-danger" style="float: right" onClick="deletePost({{post.id}})">DELETE</button>
+{#              <button class="btn btn-outline-success" style="float: right" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>#}
+{#              <button class="btn btn-outline-danger" style="float: right" onClick="deletePost({{post.id}})">DELETE</button>#}
       </div>
       <div class="card-footer text-muted">
         created {{ post.created_at|timesince }} ago
@@ -116,6 +131,11 @@
         <input class="form-control" id="form-title" type="text" name="formTitle">
         <label for="body">Post body</label>
         <input class="form-control" id="form-body" type="text" name="formBody"/>
+{#        <select class="selectpicker form-control" name="bookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3">#}
+{#         {% for book in request.user.profile.books.all %}#}
+{#          <option value="{{ book.id }}">{{ book.title }}</option>#}
+{#         {% endfor %}#}
+{#        </select>#}
     </div>
     <div class="modal-footer">
         <button type="submit" class="btn btn-primary" >Save changes</button>
@@ -134,10 +154,9 @@
     });
 // Create Django Ajax Call
 $("form#addPost").submit(function() {
-    var titleInput = $('[name="title"]').val().trim();
-    var bodyInput = $('[name="body"]').val().trim();
-    var booksInput = $('[name="bookSelect"]').val();
-    console.log(booksInput);
+    var titleInput = $('#addPost [name="title"]').val().trim();
+    var bodyInput = $('#addPost [name="body"]').val().trim();
+    var booksInput = $('#addPost [name="bookSelect"]').val();
     $('.selectpicker').selectpicker('deselectAll');
 
     if (titleInput && bodyInput) {
@@ -167,21 +186,62 @@ $("form#addPost").submit(function() {
     return false;
 });
 function appendToPostTable(post) {
-    $("#postDiv").prepend(`
-        <div class="card text-center mb-5" id="post-${post.id}">
+
+    var textToPrepend = `<div class="card text-center mb-5" id="post-${post.id}">
           <div class="card-header">
-            <img src="{{ user.profile.avatar.image_thumbnail.url }}" alt="avatar">
+            <div class="dropdown text-right">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton-${post.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-${post.id}">
+
+                    <button class="dropdown-item btn btn-outline-success" style="float: right" onClick="editPost(${post.id})" data-toggle="modal" data-target="#myModal">edit</button>
+                    <button class="dropdown-item btn btn-outline-danger" style="float: right" onClick="deletePost(${post.id})">delete</button>
+
+              </div>
+            </div>
           </div>
           <div class="card-body">
             <h5 class="card-title postData" name="title">${post.title}</h5>
             <p class="card-text postData" name="body">${post.body}</p>
-                  <button class="btn btn-outline-success" onClick="editPost(${post.id})" data-toggle="modal" data-target="#myModal")">EDIT</button>
-                  <button class="btn btn-outline-danger" onClick="deletePost(${post.id})">DELETE</button>
+
+            <div class="text-center">`;
+    var books = JSON.parse(JSON.parse(JSON.stringify(post.books)));
+    if ((books).length > 0) {
+        {#console.log(post.books)#}
+        textToPrepend += `<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseforpost-${post.id}" aria-expanded="false" aria-controls="collapseExample">
+                    Tap to see attached books
+                  </button>
+                  <div class="collapse" id="collapseforpost-${post.id}">`;
+
+        {#for (var book in post.books) {#}
+        {#    console.log("!!!!!!!!!!1");#}
+        {#    console.log(JSON.parse(book));#}
+        {#    console.log("!!!!!!!!!!1");#}
+        {#    post.books = `"data": ` + post.books;#}
+
+        {#console.log(books);#}
+        for (book in books) {
+            {#console.log(books[book].fields.title);#}
+            textToPrepend += `<img src="${books[book].fields.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="${books[book].fields.title}">`;
+            {#console.log(book.fields.title);#}
+            {#console.log(book.fields.small_pic_url);#}
+        }
+
+        textToPrepend += `</div>`;
+        {#                  {% for book in post.books.all %}#}
+        {#                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">#}
+        {#                  {% endfor %}#}
+        {#    textToPrepend += `</div>`;#}
+    }
+
+    textToPrepend += `</div>
           </div>
           <div class="card-footer text-muted">
-            created {{ post.created_at|timesince }} ago
+            created ${$.timeago(post.created_at)}
           </div>
-        </div>`);
+        </div>`;
+
+    $("#postDiv").prepend(textToPrepend);
 }
 $("form#updatePost").submit(function() {
     var idInput = $('input[name="formId"]').val().trim();

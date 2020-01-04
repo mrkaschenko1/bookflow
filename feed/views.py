@@ -49,6 +49,7 @@ class CreateCrudPost(View):
                 bookObj = BookInfo.objects.get(id=book)
                 obj.books.add(bookObj)
 
+        # books = {}
         books = serializers.serialize("json", obj.books.all())
         print(books)
 
