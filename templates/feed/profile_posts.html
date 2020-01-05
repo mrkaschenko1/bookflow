@@ -87,7 +87,7 @@
       <div class="card-body">
         <h5 class="card-title postData" name="title">{{ post.title }}</h5>
         <p class="card-text postData" name="body">{{ post.body }}</p>
-          <div class="text-center">
+          <div class="text-center" id="books-{{post.id}}">
               {% if post.books.all %}
                   <button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseforpost-{{ post.id }}" aria-expanded="false" aria-controls="collapseExample">
                     Tap to see attached books
@@ -121,16 +121,26 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <button type="button" class="close reset-data" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
       <h4 class="modal-title" id="myModalLabel">Update Post</h4>
     </div>
     <form id="updatePost" action="" method="post">{% csrf_token %}
-    <div class="modal-body">
+    <div class="modal-body" id="update-books-form">
         <input class="form-control" id="form-id" type="hidden" name="formId"/>
-        <label for="title">Post title</label>
-        <input class="form-control" id="form-title" type="text" name="formTitle">
-        <label for="body">Post body</label>
-        <input class="form-control" id="form-body" type="text" name="formBody"/>
+        <label for="updateFormTitle">Post title</label>
+        <input class="form-control" id="form-title" type="text" name="updateFormTitle">
+        <label for="updateFormBody">Post body</label>
+        <input class="form-control" id="form-body" type="text" name="updateFormBody"/>
+
+        <label for="formBooks">Select books for post</label>
+        <select class="selectpicker form-control" id="update-book-select" name="updateBookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3">
+         {% for book in request.user.profile.books.all %}
+          <option value="{{ book.id }}">{{ book.title }}</option>
+         {% endfor %}
+        </select>
+
+        Check if you don't want to change books
+        <input id="check-for-books" type="checkbox" name="checkForBooks" class="form-control" placeholder="">
 {#        <select class="selectpicker form-control" name="bookSelect" multiple="multiple" data-size="5" data-live-search="true" multiple data-max-options="3">#}
 {#         {% for book in request.user.profile.books.all %}#}
 {#          <option value="{{ book.id }}">{{ book.title }}</option>#}
@@ -139,7 +149,7 @@
     </div>
     <div class="modal-footer">
         <button type="submit" class="btn btn-primary" >Save changes</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default reset-data" data-dismiss="modal">Close</button>
     </div>
     </form>
   </div>
@@ -149,6 +159,27 @@
 {% block javascript %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
 <script>
+
+    $(function(){
+       $('#check-for-books').on('click', function(){
+           if ($(this).is(":checked")) {
+               $('#update-book-select').selectpicker('deselectAll').next().attr('disabled', true);
+           }
+           else {
+               $('#update-book-select').next().removeAttr('disabled');
+           }
+          {#$('#update-book-select').attr('disabled', $(this).is(':checked'));#}
+       });
+    });
+
+    $(document).on('hide.bs.modal','#myModal', function () {
+
+        {#$('#update-book-select').next().removeAttr('disabled');#}
+        $('#update-book-select').selectpicker('deselectAll').next().removeAttr('disabled');
+        $('input[name="updateFormTitle"]').val('');
+        $('input[name="updateFormBody"]').val('');
+    });
+
     $(function () {
             $('.selectpicker').selectpicker();
     });
@@ -204,7 +235,7 @@ function appendToPostTable(post) {
             <h5 class="card-title postData" name="title">${post.title}</h5>
             <p class="card-text postData" name="body">${post.body}</p>
 
-            <div class="text-center">`;
+            <div class="text-center" id="books-${post.id}">`;
     var books = JSON.parse(JSON.parse(JSON.stringify(post.books)));
     if ((books).length > 0) {
         {#console.log(post.books)#}
@@ -221,17 +252,10 @@ function appendToPostTable(post) {
 
         {#console.log(books);#}
         for (book in books) {
-            {#console.log(books[book].fields.title);#}
             textToPrepend += `<img src="${books[book].fields.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="${books[book].fields.title}">`;
-            {#console.log(book.fields.title);#}
-            {#console.log(book.fields.small_pic_url);#}
         }
 
         textToPrepend += `</div>`;
-        {#                  {% for book in post.books.all %}#}
-        {#                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">#}
-        {#                  {% endfor %}#}
-        {#    textToPrepend += `</div>`;#}
     }
 
     textToPrepend += `</div>
@@ -244,9 +268,19 @@ function appendToPostTable(post) {
     $("#postDiv").prepend(textToPrepend);
 }
 $("form#updatePost").submit(function() {
+    {#$('#update-book-select').selectpicker('deselectAll');#}
     var idInput = $('input[name="formId"]').val().trim();
-    var titleInput = $('input[name="formTitle"]').val().trim();
-    var bodyInput = $('input[name="formBody"]').val().trim();
+    var titleInput = $('input[name="updateFormTitle"]').val().trim();
+    var bodyInput = $('input[name="updateFormBody"]').val().trim();
+    var booksInput = $('#update-books-form [name="updateBookSelect"]').val();
+
+    console.log(booksInput);
+
+    var checker = false;
+    if ($("#check-for-books").is(':checked')) {
+        checker = true;
+        booksInput = null;
+    }
 
     if (titleInput && bodyInput) {
         // Create Ajax Call
@@ -257,6 +291,8 @@ $("form#updatePost").submit(function() {
                 'id': idInput,
                 'title': titleInput,
                 'body': bodyInput,
+                'books[]': booksInput,
+                'checker': checker,
                 'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
             },
             dataType: 'json',
@@ -291,6 +327,21 @@ function updateToPostTabel(post){
           $(this).text(post.body);
         }
       });
+    var books = JSON.parse(JSON.parse(JSON.stringify(post.books)));
+    textToAppend = '';
+    if ((books).length > 0) {
+        {#console.log(post.books)#}
+        textToAppend += `<button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseforpost-${post.id}" aria-expanded="false" aria-controls="collapseExample">
+                    Tap to see attached books
+                  </button>
+                  <div class="collapse" id="collapseforpost-${post.id}">`;
+        for (book in books) {
+            textToAppend += `<img src="${books[book].fields.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="${books[book].fields.title}">`;
+        }
+
+        textToAppend += `</div>`;
+    }
+    $("#books-" + post.id).html(textToAppend);
 }
 function deletePost(id) {
   var action = confirm("Are you sure you want to delete this post?");

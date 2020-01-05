@@ -49,6 +49,8 @@ class CreateCrudPost(View):
                 bookObj = BookInfo.objects.get(id=book)
                 obj.books.add(bookObj)
 
+        obj.save()
+
         # books = {}
         books = serializers.serialize("json", obj.books.all())
         print(books)
@@ -63,17 +65,32 @@ class CreateCrudPost(View):
 
 class UpdateCrudPost(View):
     def post(self, request):
-        user = request.user
         id1 = request.POST.get('id', None)
         title1 = request.POST.get('title', None)
         body1 = request.POST.get('body', None)
+        checker1 = request.POST.get('checker', None)
+        # print(type(checker1))
+
 
         obj = Post.objects.get(id=id1)
 
         obj.title = title1
         obj.body = body1
+
+        if checker1 == 'false':
+            books1 = request.POST.getlist('books[]', None)
+            obj.books.clear()
+            if books1 is not None:
+                print(books1)
+                for book in books1:
+                    bookObj = BookInfo.objects.get(id=book)
+                    obj.books.add(bookObj)
+
         obj.save()
-        post = {'id': obj.id, 'title': obj.title, 'body': obj.body, 'created_at': obj.created_at}
+        books = serializers.serialize("json", obj.books.all())
+
+        print(books)
+        post = {'id': obj.id, 'title': obj.title, 'body': obj.body, 'created_at': obj.created_at, 'books': books}
 
         data = {
             'post': post
