@@ -115,29 +115,29 @@ class DeleteCrudPost(View):
 #     return render(request, 'index.html', {'all_documents': all_documents})
 
 
-def pusher_authentication(request):
-    channel = request.GET.get('channel_name', None)
-    socket_id = request.GET.get('socket_id', None)
-    auth = pusher.authenticate(
-        channel=channel,
-        socket_id=socket_id
-    )
-    return JsonResponse(json.dumps(auth), safe=False)
-
-
-def push_feed(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)
-        if form.is_valid():
-            f = form.save()
-            pusher.trigger(u'a_channel', u'an_event', {u'title': f.title, u'body': f.body})
-            return HttpResponse('ok')
-        else:
-            # return a form not valid error
-            return HttpResponse('form not valid')
-    else:
-        # return error, type isnt post
-        return HttpResponse('error, please try again')
+# def pusher_authentication(request):
+#     channel = request.GET.get('channel_name', None)
+#     socket_id = request.GET.get('socket_id', None)
+#     auth = pusher.authenticate(
+#         channel=channel,
+#         socket_id=socket_id
+#     )
+#     return JsonResponse(json.dumps(auth), safe=False)
+#
+#
+# def push_feed(request):
+#     if request.method == 'POST':
+#         form = PostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             f = form.save()
+#             pusher.trigger(u'a_channel', u'an_event', {u'title': f.title, u'body': f.body})
+#             return HttpResponse('ok')
+#         else:
+#             # return a form not valid error
+#             return HttpResponse('form not valid')
+#     else:
+#         # return error, type isnt post
+#         return HttpResponse('error, please try again')
 
 
 class PostList(ListView):
@@ -145,3 +145,23 @@ class PostList(ListView):
     queryset = Post.objects.all().order_by('-created_at')
     context_object_name = 'posts'
     paginate_by = 7
+
+
+class PostLikeToggle(View):
+    def get(self, request):
+        try:
+            id1 = request.GET.get('id', None)
+            # print(id1)
+            post = Post.objects.get(id=id1)
+            if request.user in post.likes.all():
+                post.likes.remove(request.user)
+                print("like removed")
+                data = {'status': 'unlike'}
+            else:
+                post.likes.add(request.user)
+                print("liked")
+                data = {'status': 'like'}
+        except Exception as e:
+            print(e)
+            data = {'err': 'Try to update page, this post may be deleted'}
+        return JsonResponse(data)

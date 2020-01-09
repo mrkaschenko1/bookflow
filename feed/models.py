@@ -9,4 +9,5 @@ class Post(models.Model):
     title = models.CharField(max_length=255, blank=False, null=False)
     body = models.TextField(max_length=2000, blank=False, null=False)
     books = models.ManyToManyField(BookInfo, related_name='posts', null=True)
+    likes = models.ManyToManyField(User, blank=True, related_name='post_liked')
     created_at = models.DateTimeField(auto_now_add=True)

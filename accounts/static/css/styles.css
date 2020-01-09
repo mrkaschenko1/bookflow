@@ -64,20 +64,3 @@
   border-color: #ef1c1c;
   color: #ef1c1c
 }
-
-.box9{background:#000;text-align:center;position:relative !important;}
-.box9 img{width:100%;height:auto}
-.box9:hover img{opacity:.5}
-.box9 .box-content{padding:30px 10px 30px 0;background:rgba(0,0,0,.65);position:absolute !important;top:0;left:0;bottom:0;right:0;opacity:0}
-.box9:hover .box-content{top:10px;left:10px;bottom:10px;right:10px;opacity:1}
-.box9 .title{font-weight:700;color:#fff;line-height:17px;margin:5px 0;position:absolute;bottom:55%}
-.box9 .icon li a{line-height:35px;border-radius:50%}
-.box9 .icon{list-style:none;padding:0;margin:0;position:absolute;top:50%}
-.box9 .icon li{display:inline-block;opacity:0;transform:translateY(40px)}
-.box9:hover .icon li{opacity:1;transform:translateY(0)}
-.box9:hover .icon li:first-child{transition-delay:.1s}
-.box9:hover .icon li:nth-child(2){transition-delay:.2s}
-.box9 .icon li a{display:block;width:35px;height:35px;background:#f39c12;font-size:20px;color:#000;margin-right:5px;transition:all .35s ease 0s}
-.box9 .icon a:hover{background:#fff}
-/*@media only screen and (max-width:990px){.box9{margin-bottom:20px}*/
-/*}*/

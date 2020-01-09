@@ -53,6 +53,9 @@
       </div>
       <div class="card-footer text-muted">
         posted {{ post.created_at|timesince }} ago
+      <div class="text-right"><i class="{% if post in user.post_liked.all %}fas{% else %}far{% endif %} fa-heart" onClick="toggleLike({{post.id}})" style="font-size: 20px; {% if post in user.post_liked.all %}color: red{% endif %}"></i>
+          <span class="count">{{ post.likes.count }}</span>
+      </div>
       </div>
   </div>
   {% endfor %}
@@ -80,9 +83,35 @@
 
     var channel = pusher.subscribe('andrey-channel');
     channel.bind('post-pub', function(data) {
-        $('#msgs').append(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-angle-double-down" style="font-size:16px"></i>
+        $('#msgs').append(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-sync" style="font-size:16px"></i>
 </div></a>`);
       {#alert(JSON.stringify(data));#}
     });
+
+    function toggleLike(id){
+        $.ajax({
+                url: '{% url "like_toggle" %}',
+                data: {
+                    'id': id,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status) {
+                        var likeButton = $('#post-' + id + ' .fa-heart');
+                        var likeCount = $('#post-' + id + ' .count').text();
+                        console.log(likeCount);
+                        if (data.status === 'like'){
+                            likeButton.removeClass('far').addClass('fas').css('color', 'red');
+                            $('#post-' + id + ' .count').text(++likeCount);
+                        } else {
+                            likeButton.removeClass('fas').addClass('far').css('color', '');
+                            $('#post-' + id + ' .count').text(--likeCount);
+                        }
+                    } else if (data.err) {
+                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                    }
+                }
+            });
+    }
   </script>
 {% endblock %}
