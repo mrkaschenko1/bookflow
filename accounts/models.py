@@ -71,9 +71,9 @@ def create_user_profile(sender, instance, created, **kwargs):
         user = instance
         if created:
             profile = Profile(user=user)
-            avatar = Avatar(image='default/default_avatar.png', profile=profile)
             # profile.avatar.image.set_image_to_default()
             profile.save()
+            avatar = Avatar(image='default/default_avatar.png', profile=profile)
             avatar.save()
             Shelf.objects.create(name="To read", profile=profile, is_custom=False)
             Shelf.objects.create(name="In progress", profile=profile, is_custom=False)

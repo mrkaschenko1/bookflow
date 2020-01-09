@@ -156,11 +156,11 @@ class PostLikeToggle(View):
             if request.user in post.likes.all():
                 post.likes.remove(request.user)
                 print("like removed")
-                data = {'status': 'unlike'}
+                data = {'status': 'unlike', 'count': post.likes.count()}
             else:
                 post.likes.add(request.user)
                 print("liked")
-                data = {'status': 'like'}
+                data = {'status': 'like', 'count': post.likes.count()}
         except Exception as e:
             print(e)
             data = {'err': 'Try to update page, this post may be deleted'}

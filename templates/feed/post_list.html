@@ -98,15 +98,12 @@
                 success: function (data) {
                     if (data.status) {
                         var likeButton = $('#post-' + id + ' .fa-heart');
-                        var likeCount = $('#post-' + id + ' .count').text();
-                        console.log(likeCount);
                         if (data.status === 'like'){
                             likeButton.removeClass('far').addClass('fas').css('color', 'red');
-                            $('#post-' + id + ' .count').text(++likeCount);
                         } else {
                             likeButton.removeClass('fas').addClass('far').css('color', '');
-                            $('#post-' + id + ' .count').text(--likeCount);
                         }
+                        $('#post-' + id + ' .count').text(data.count);
                     } else if (data.err) {
                         $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
                     }
