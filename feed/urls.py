@@ -8,6 +8,7 @@ urlpatterns = [
     path('profile/wall/create/', views.CreateCrudPost.as_view(), name='crud_ajax_create_post'),
     path('profile/wall/update/', views.UpdateCrudPost.as_view(), name='crud_ajax_update_post'),
     path('profile/wall/delete/', views.DeleteCrudPost.as_view(), name='crud_ajax_delete_post'),
+    path('wall/', views.PostList.as_view(), name='feed'),
 
     # path('', login_required(views.show_books), name='book_list'),
     # path('tag/<str:tag_name>', login_required(views.show_books_by_tag), name='book_list_by_tag'),

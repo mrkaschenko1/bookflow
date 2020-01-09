@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% load libs_tags %}
+{% load bootstrap_pagination %}
+
+
+{% block title %}My Posts{% endblock %}
+
+{% block styles %}
+{#<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">#}
+{% endblock %}
+
+{% block content %}
+    <div id="msgs">
+
+    </div>
+<div class="row">
+
+<div id="postDiv" class="col-8 offset-2">
+  {% if posts %}
+      {% for post in posts %}
+  <div class="card text-center mb-5" id="post-{{post.id}}">
+      <div class="card-header">
+        <img class="align-left" src="{{ post.user.profile.avatar.image_thumbnail.url }}" alt="avatar">{{ post.user.username }}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title postData" name="title">{{ post.title }}</h5>
+        <p class="card-text postData" name="body">{{ post.body }}</p>
+          <div class="text-center" id="books-{{post.id}}">
+              {% if post.books.all %}
+                  <button class="btn btn-outline-secondary" type="button" data-toggle="collapse" data-target="#collapseforpost-{{ post.id }}" aria-expanded="false" aria-controls="collapseExample">
+                    Tap to see attached books
+                  </button>
+                  <div class="collapse" id="collapseforpost-{{ post.id }}">
+                  {% for book in post.books.all %}
+{#                      <div class="box9">#}
+                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">
+{#                          <div class="box-content">#}
+{#                                <h3 class="title">{{ book.title }}</h3>#}
+{#                                <ul class="icon">#}
+{#                                    <li><a href="#"><i class="fa fa-search"></i></a></li>#}
+{#                                    <li><a href="#"><i class="fa fa-link"></i></a></li>#}
+{#                                </ul>#}
+{#                          </div>#}
+{#                      </div>#}
+                  {% endfor %}
+                  </div>
+              {% endif %}
+          </div>
+{#              <button class="btn btn-outline-success" style="float: right" onClick="editPost({{post.id}})" data-toggle="modal" data-target="#myModal">EDIT</button>#}
+{#              <button class="btn btn-outline-danger" style="float: right" onClick="deletePost({{post.id}})">DELETE</button>#}
+      </div>
+      <div class="card-footer text-muted">
+        posted {{ post.created_at|timesince }} ago
+      </div>
+  </div>
+  {% endfor %}
+      <div class="col-4 offset-4">
+      {% bootstrap_paginate page_obj range=5 show_prev_next="false" show_first_last="true" %}
+      </div>
+  {% else %}
+    No Posts
+  {% endif %}
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://js.pusher.com/5.0/pusher.min.js"></script>
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+  <script>
+
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('4ac5984fc15d8ee1ba9a', {
+      cluster: 'eu'
+    });
+
+    var channel = pusher.subscribe('andrey-channel');
+    channel.bind('post-pub', function(data) {
+        $('#msgs').append(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-angle-double-down" style="font-size:16px"></i>
+</div></a>`);
+      {#alert(JSON.stringify(data));#}
+    });
+  </script>
+{% endblock %}

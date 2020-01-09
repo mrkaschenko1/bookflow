@@ -40,9 +40,9 @@ class CreateCrudPost(View):
             user=user
         )
 
-        print("!!!!!!!!!1")
-        print(books1)
-        print("!!!!!!!!!1")
+        # print("!!!!!!!!!1")
+        # print(books1)
+        # print("!!!!!!!!!1")
 
         if books1 is not None:
             for book in books1:
@@ -50,6 +50,7 @@ class CreateCrudPost(View):
                 obj.books.add(bookObj)
 
         obj.save()
+        pusher.trigger(f'{request.user.username}-channel', 'post-pub', {'message': 'pub posted notification'})
 
         # books = {}
         books = serializers.serialize("json", obj.books.all())
@@ -137,3 +138,10 @@ def push_feed(request):
     else:
         # return error, type isnt post
         return HttpResponse('error, please try again')
+
+
+class PostList(ListView):
+    template_name = 'feed/post_list.html'
+    queryset = Post.objects.all().order_by('-created_at')
+    context_object_name = 'posts'
+    paginate_by = 7

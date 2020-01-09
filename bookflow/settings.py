@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'django-libs',
+    'bootstrap_pagination',
     'accounts.apps.AccountsConfig',
     'book.apps.BookConfig',
     'feed.apps.FeedConfig',
