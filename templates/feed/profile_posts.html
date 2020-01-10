@@ -3,7 +3,7 @@
 
 {% load libs_tags %}
 
-{% block title %}My Posts{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
@@ -94,7 +94,7 @@
                   </button>
                   <div class="collapse" id="collapseforpost-{{ post.id }}">
                   {% for book in post.books.all %}
-                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">
+                      <a href="{% url 'book_detail' id=book.id %}"><img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}"><a>
                   {% endfor %}
                   </div>
               {% endif %}

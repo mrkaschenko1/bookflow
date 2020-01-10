@@ -7,7 +7,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from book.models import Tag
 from .forms import SignUpForm, ImageUploadForm, TagForm
@@ -168,3 +168,9 @@ class DeleteCrudTag(View):
             'deleted': True
         }
         return JsonResponse(data)
+
+
+class MyProfileDetailView(View):
+    def get(self, request):
+        return render(request, 'accounts/my_profile_info.html', {'profile': request.user.profile})
+

@@ -15,6 +15,7 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     books = models.ManyToManyField(BookInfo, related_name='profiles')
+    follows = models.ManyToManyField('self', related_name='followed_by', symmetrical=False, null=True)
     # avatar = models.ImageField(upload_to = 'avatars/', null=True, blank=True)
 
 

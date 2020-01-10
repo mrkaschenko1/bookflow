@@ -35,7 +35,7 @@
                   <div class="collapse" id="collapseforpost-{{ post.id }}">
                   {% for book in post.books.all %}
 {#                      <div class="box9">#}
-                      <img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}">
+                      <a href="{% url 'book_detail' id=book.id %}"><img src="{{book.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="{{book.title}}"></a>
 {#                          <div class="box-content">#}
 {#                                <h3 class="title">{{ book.title }}</h3>#}
 {#                                <ul class="icon">#}

@@ -126,7 +126,7 @@ class BookDetail(View):
         from_shelf = None
         if book in request.user.profile.books.all():
             show_select_field = False
-            from_shelf = ProfileBookInfo.objects.get(book=book).shelf.name
+            from_shelf = ProfileBookInfo.objects.get(book=book, profile=request.user.profile).shelf.name
             shelves.remove(from_shelf)
 
 
