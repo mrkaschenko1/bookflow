@@ -32,11 +32,11 @@
         <div class="card mb-3">
           <div class="row no-gutters">
             <div class="col-md-3">
-              <img src="{{ profile_book_info.book.small_pic_url }}" height="180" width="auto" class="card-img" alt="...">
+                <a href="{% url 'book_detail' id=profile_book_info.book.id %}"><img src="{{ profile_book_info.book.small_pic_url }}" height="180" width="auto" class="card-img" alt="..."></a>
             </div>
             <div class="col-md-9">
               <div class="card-body">
-                <h5 class="card-title">{{profile_book_info.book.title}}</h5>
+                  <a href="{% url 'book_detail' id=profile_book_info.book.id %}"><h5 class="card-title">{{profile_book_info.book.title}}</h5></a>
               <h6 class="card-title">{{ profile_book_info.book.authors }}</h6>
     {#            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>#}
 {#                <p class="card-text"><small class="text-muted">added on this shelf {{ time|timesince }} ago</small></p>#}

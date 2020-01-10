@@ -5,6 +5,8 @@ from .views import AddTagToBook, AddTagToBookAjax, DeleteTagFromBookAjax
 
 urlpatterns = [
     path('', login_required(views.show_books), name='book_list'),
+    re_path(r'^add/(?P<id>.{1,20})/db/$', login_required(views.add_book_to_db), name='book_to_db'),
+    re_path(r'^detail/(?P<id>\d+)/$', login_required(views.BookDetail.as_view()), name='book_detail'),
     path('tag/<str:tag_name>', login_required(views.show_books_by_tag), name='book_list_by_tag'),
     path('delete/', login_required(views.delete_book), name='delete_book'),
     path('move/', login_required(views.move_book), name='move_book'),

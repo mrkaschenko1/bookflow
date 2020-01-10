@@ -9,6 +9,8 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
+from django.views.generic import RedirectView, DetailView
+
 from accounts.models import Profile
 from book.models import BookInfo, Shelf, ProfileBookInfo
 
@@ -17,7 +19,7 @@ DEFAULT_BOOK_IMAGE_URL = "https://previews.123rf.com/images/chupakabrajk/chupaka
 
 class BookSearch(View):
     def get(self, request):
-        profile = Profile.objects.filter(user=request.user)[0]
+        profile = request.user.profile
         # print('11111111')
         # print(profile)
         # print('11111111')
@@ -45,7 +47,25 @@ class BookSearch(View):
                       {'book_list': apiResponse, 'shelves': shelves, 'profile_books': profile_books})
 
 
-class AddToBookshelf(View):
+def add_book_to_db(request, id):
+    book_info = requests.get(f'https://www.googleapis.com/books/v1/volumes/{id}').json()
+    try:
+        book = BookInfo.objects.get(google_id=id)
+    except BookInfo.DoesNotExist:
+        volume_info = book_info.get('volumeInfo')
+        image_link = volume_info.get('imageLinks', {}).get('smallThumbnail', DEFAULT_BOOK_IMAGE_URL)
+        book = BookInfo(google_id=id,
+                        title=volume_info.get('title'),
+                        authors=(",").join(volume_info.get('authors', ['Unknown author'])),
+                        description=volume_info.get('description', 'No description'),
+                        pageCount=volume_info.get('pageCount', ''),
+                        small_pic_url=image_link,
+                        )
+        book.save()
+    return redirect('book_detail', id=book.id)
+
+
+class AddToBookshelf(RedirectView):
     def get(self, request, id):
         profile = Profile.objects.filter(user=request.user)[0]
 
@@ -68,12 +88,14 @@ class AddToBookshelf(View):
                             )
             book.save()
 
-            shelf_name = request.GET.get('shelf').replace("%20", " ")
-            shelf = profile.shelves.get(name=shelf_name)
-            # here should be check for book on shelf,
-            # actually it had to be before
+        shelf_name = request.GET.get('shelf').replace("%20", " ")
+        shelf = profile.shelves.get(name=shelf_name)
+        # here should be check for book on shelf,
+        # actually it had to be before
 
+        if book not in profile.books.all():
             profile.books.add(book)
+
             profile_book_info = ProfileBookInfo()
 
             profile_book_info.profile = profile
@@ -85,9 +107,30 @@ class AddToBookshelf(View):
             #
             profile_book_info.save()
             messages.success(request, f'Your book was added on {shelf_name} shelf!')
+        else:
+            messages.warning(request, f'Your already have this book on shelf')
 
         print(profile.bio)
-        return render(request, 'book/book_add.html', {'book': book_info})
+        # return render(request, 'book/book_add.html', {'book': book_info})
+        return redirect('book_list')
+
+
+class BookDetail(View):
+    def get(self, request, id):
+        if not id:
+            raise Http404
+        book = get_object_or_404(BookInfo, id=id)
+        show_select_field = True
+        shelves = list(x.name for x in request.user.profile.shelves.all())
+        print(shelves)
+        from_shelf = None
+        if book in request.user.profile.books.all():
+            show_select_field = False
+            from_shelf = ProfileBookInfo.objects.get(book=book).shelf.name
+            shelves.remove(from_shelf)
+
+
+        return render(request, 'book/book_detail.html', {'book': book, 'show_select_field': show_select_field, 'shelves': shelves, 'from_shelf': from_shelf})
 
 
 def show_books(request):

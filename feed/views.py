@@ -155,10 +155,12 @@ class PostLikeToggle(View):
             post = Post.objects.get(id=id1)
             if request.user in post.likes.all():
                 post.likes.remove(request.user)
+                post.save()
                 print("like removed")
                 data = {'status': 'unlike', 'count': post.likes.count()}
             else:
                 post.likes.add(request.user)
+                post.save()
                 print("liked")
                 data = {'status': 'like', 'count': post.likes.count()}
         except Exception as e:

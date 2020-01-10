@@ -101,9 +101,14 @@ def index(request):
 
 
 class TagCrudView(ListView):
-    model = Tag
+    # model = Tag
+    # queryset = Tag.objects.filter(profile=)
     template_name = 'accounts/tags.html'
     context_object_name = 'tags'
+
+    def get_queryset(self):
+        queryset = Tag.objects.filter(profile=self.request.user.profile)
+        return queryset
 
 
 class CreateCrudTag(View):

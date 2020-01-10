@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% load libs_tags %}
+{% load static %}
+
+
+{% block title %}My books{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+{% endblock %}
+{% block content %}
+    <p>Title: {{ book.title }}</p>
+    <p>Authors: {{ book.authors }}</p>
+    <p>Description: {{ book.description }}</p>
+    <p>Picture: <img src="{{ book.small_pic_url }}"></p>
+{#    <p>Raiting: {{ book.ra }}</p>#}
+    <br>
+    {% if show_select_field %}
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {% if item.id in profile_books %}disabled{% endif %}>
+            Add to bookshelf
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              {% for shelf in shelves %}
+                <a class="dropdown-item" href="{% url 'book_add' id=book.google_id  %}?title={{ book.title }}&shelf={{ shelf }}">{{ shelf }}</a>
+              {% endfor %}
+          </div>
+        </div>
+    {% else %}
+        You already have this book on shelf
+        <div class="btn-group">
+          <div class="dropdown">
+                      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Move
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          {% for shelf in shelves %}
+                              <a class="dropdown-item" href="{% url 'move_book' %}?from={{ from_shelf }}&to={{ shelf }}&id={{ book.google_id }}">{{ shelf }}</a>
+                          {% endfor %}
+                      </div>
+          </div>
+            <a href="{% url 'delete_book' %}?shelf={{ from_shelf }}&id={{ book.google_id }}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
+
+        </div>
+    {% endif %}
+{% endblock %}
