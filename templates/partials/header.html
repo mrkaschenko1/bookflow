@@ -62,7 +62,7 @@
                       <img src="{{ user.profile.avatar.image_thumbnail.url }}" width="40" height="40" class="rounded-circle">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                      <a class="dropdown-item" href="{% url 'show_posts' %}">Profile</a>
+                      <a class="dropdown-item" href="{% url 'profile_info' username=request.user.username %}">Profile</a>
                       <a class="dropdown-item" href="{% url 'profile_update' %}">Edit Profile</a>
                         <a class="dropdown-item" href="{% url 'tags_manage' %}">Manage tags</a>
                         <a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>

@@ -1,12 +1,14 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
 
 from book.models import Tag
@@ -170,7 +172,18 @@ class DeleteCrudTag(View):
         return JsonResponse(data)
 
 
-class MyProfileDetailView(View):
-    def get(self, request):
-        return render(request, 'accounts/my_profile_info.html', {'profile': request.user.profile})
+class ProfileDetailView(View):
+    def get(self, request, username):
+        user = get_object_or_404(User, username=username)
+        post_list = user.posts.all().order_by('-id')
+        page = request.GET.get('page', 1)
+        paginator = Paginator(post_list, 5)
+        try:
+            posts = paginator.page(page)
+        except PageNotAnInteger:
+            posts = paginator.page(1)
+        except EmptyPage:
+            posts = paginator.page(paginator.num_pages)
+
+        return render(request, 'accounts/my_profile_info.html', {'user_from_view': user, 'posts': posts})
 
