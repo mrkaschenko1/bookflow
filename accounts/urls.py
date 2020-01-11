@@ -28,6 +28,8 @@ urlpatterns = [
     path('tags/manage/create/', views.CreateCrudTag.as_view(), name='crud_ajax_create_tag'),
     path('tags/manage/update/', views.UpdateCrudTag.as_view(), name='crud_ajax_update_tag'),
     path('tags/manage/delete/', views.DeleteCrudTag.as_view(), name='crud_ajax_delete_tag'),
-    path('profile/<str:username>/', views.ProfileDetailView.as_view(), name='profile_info')
+    path('profile/<str:username>/', views.ProfileDetailView.as_view(), name='profile_info'),
+    path('profile/<str:username>/follow/', views.follow, name='follow'),
+    path('profile/<str:username>/unfollow/', views.unfollow, name='unfollow'),
     # path('avatar/', include('avatar.urls'), name='change_avatar')
 ]

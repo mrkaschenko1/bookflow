@@ -175,6 +175,7 @@ class DeleteCrudTag(View):
 class ProfileDetailView(View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
+        print(request.user.profile.follows.all())
         post_list = user.posts.all().order_by('-id')
         page = request.GET.get('page', 1)
         paginator = Paginator(post_list, 5)
@@ -186,4 +187,25 @@ class ProfileDetailView(View):
             posts = paginator.page(paginator.num_pages)
 
         return render(request, 'accounts/my_profile_info.html', {'user_from_view': user, 'posts': posts})
+
+
+def follow(request, username):
+    user = get_object_or_404(User, username=username)
+    if (user.profile in request.user.profile.follows.all()):
+        data = {'err': 'You already follow this user'}
+    else:
+        request.user.profile.follows.add(user.profile)
+        data = {'status': 'Okay'}
+    return JsonResponse(data)
+
+
+def unfollow(request, username):
+    user = get_object_or_404(User, username=username)
+    if (user.profile not in request.user.profile.follows.all()):
+        data = {'err': 'You don`t follow this user'}
+    else:
+        request.user.profile.follows.remove(user.profile)
+        data = {'status': 'Okay'}
+    return JsonResponse(data)
+
 

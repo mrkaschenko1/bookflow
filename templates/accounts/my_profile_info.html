@@ -57,7 +57,12 @@
                             {% if user_from_view == request.user %}
 
                                     <a href="{% url 'profile_update' %}"><button class="btn btn-outline-secondary">Edit profile</button></a>
-
+                            {% else %}
+                                {% if user_from_view.profile in request.user.profile.follows.all %}
+                                    <button class="btn btn-outline-danger follow-btn" onClick="unfollow()">Unfollow</button>
+                                {% else %}
+                                    <button class="btn btn-outline-primary unfollow-btn" onClick="follow()">Follow</button>
+                                {% endif %}
                             {% endif %}
 
                         </div>
@@ -221,6 +226,41 @@
                             likeButton.removeClass('fas').addClass('far').css('color', '');
                         }
                         $('#post-' + id + ' .count').text(data.count);
+                    } else if (data.err) {
+                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                    }
+                }
+            });
+        }
+        function follow() {
+            $.ajax({
+                url: '{% url "follow" username=user_from_view.username %}',
+                data: {
+                    'userId': {{ user_from_view.id }}
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status) {
+                        $('.follow-btn').removeClass('btn-outline-primary').addClass('btn-outline-danger').text('Unfollow').attr('onClick', 'unfollow()');
+                        $('#msgs').html(`<div class='alert alert-success'>Now you are following {{ user_from_view.username }}</div>`);
+                    } else if (data.err) {
+                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                    }
+                }
+            });
+        }
+
+        function unfollow() {
+            $.ajax({
+                url: '{% url "unfollow" username=user_from_view.username %}',
+                data: {
+                    'userId': {{ user_from_view.id }}
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status) {
+                        $('.follow-btn').removeClass('btn-outline-danger').addClass('btn-outline-primary').text('Follow').attr('onClick', 'follow()');
+                        $('#msgs').html(`<div class='alert alert-success'>Now you are not following {{ user_from_view.username }}</div>`);
                     } else if (data.err) {
                         $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
                     }
