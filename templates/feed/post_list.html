@@ -22,7 +22,7 @@
       {% for post in posts %}
   <div class="card text-center mb-5" id="post-{{post.id}}">
       <div class="card-header">
-        <img class="align-left" src="{{ post.user.profile.avatar.image_thumbnail.url }}" alt="avatar">{{ post.user.username }}
+        <a href="{% url 'profile_info' post.user.username %}"><img class="align-left" src="{{ post.user.profile.avatar.image_thumbnail.url }}" alt="avatar">{{ post.user.username }}</a>
       </div>
       <div class="card-body">
         <h5 class="card-title postData" name="title">{{ post.title }}</h5>
@@ -63,7 +63,7 @@
       {% bootstrap_paginate page_obj range=5 show_prev_next="false" show_first_last="true" %}
       </div>
   {% else %}
-    No Posts
+      You don`t follow anyone, search your bookmates <a href="{% url 'profile_search' %}">here</a> to be able to see their posts in your newsfeed
   {% endif %}
   </div>
 
@@ -80,12 +80,20 @@
       cluster: 'eu'
     });
 
-    var channel = pusher.subscribe('andrey-channel');
-    channel.bind('post-pub', function(data) {
+    let channels = [];
+    {% for profile in request.user.profile.follows.all %}
+        channels.add('{{ profile.user.username }}-channel');
+    {% endfor %}
+        channels = channels.map(channelName => pusher.subscribe(channelName));
+    {#var channel = pusher.subscribe('andrey-channel');#}
+    for (var channel of channels) {
+        channel.bind('post-pub', function(data) {
         $('#msgs').append(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-sync" style="font-size:16px"></i>
 </div></a>`);
       {#alert(JSON.stringify(data));#}
     });
+    }
+
 
     function toggleLike(id){
         $.ajax({

@@ -4,21 +4,30 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
+from pusher import Pusher
 
 from book.models import Tag
 from .forms import SignUpForm, ImageUploadForm, TagForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
 from .models import Profile, Avatar
 from bookflow.constants import DEFAULT_AVATAR, TAG_LIMIT
+
+pusher = Pusher(
+  app_id='925079',
+  key='4ac5984fc15d8ee1ba9a',
+  secret='3e2b790de10f27457a7a',
+  cluster='eu'
+)
 
 
 class SignUp(SuccessMessageMixin, generic.CreateView):
@@ -209,3 +218,38 @@ def unfollow(request, username):
     return JsonResponse(data)
 
 
+class FollowerPage(View):
+    def get(self, request):
+        # print(request.user.profile.follows.all())
+        # print(request.user.profile.followed_by)
+        return render(request, 'accounts/followers_page.html')
+
+
+class SearchProfile(View):
+    def get(self, request):
+        return render(request, 'accounts/profile_search.html')
+
+
+def search_profile_result(request):
+    username = request.GET.get('username', None)
+    if not username:
+        data = {'err': 'Please enter username'}
+    try:
+        user = User.objects.get(username__iexact=username)
+        data = {
+            'status': 'ok',
+            'followers': user.profile.follows.count(),
+            'following': user.profile.followed_by.count(),
+            'books': user.profile.books.count(),
+            'description': user.profile.bio,
+            'username': user.username,
+            'firstname': user.first_name,
+            'lastname': user.last_name,
+            'avatarUrl': user.profile.avatar.image.url,
+            'profileUrl': reverse('profile_info', kwargs={'username': username})
+        }
+
+    except ObjectDoesNotExist:
+        data = {'err': 'Try again. There is no user with such username'}
+
+    return JsonResponse(data)

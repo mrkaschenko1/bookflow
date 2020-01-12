@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load libs_tags %}
+{% load static %}
+
+{% block title %}
+   My people
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+    <div class="col-6">
+    {% if user.profile.follows %}
+        <h3 class="text-center">Following</h3>
+        <ul class="list-group">
+        {% for profile in user.profile.follows.all %}
+            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.usermame %}">{{ profile.user.username }}</a></li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <h6 class="text-center">You don't follow anyone, try to <a href="#">search for one</a></h6>
+        {% endif %}
+    </div>
+    <div class="col-6">
+        {% if user.profile.followed_by %}
+            <h3 class="text-center">Followers</h3>
+        <ul class="list-group">
+        {% for profile in user.profile.followed_by.all %}
+            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.usermame %}">{{ profile.user.username }}</a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    </div>
+{% endblock %}

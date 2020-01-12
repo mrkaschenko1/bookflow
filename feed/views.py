@@ -142,9 +142,15 @@ class DeleteCrudPost(View):
 
 class PostList(ListView):
     template_name = 'feed/post_list.html'
-    queryset = Post.objects.all().order_by('-created_at')
+    # queryset = Post.objects.all().order_by('-created_at')
     context_object_name = 'posts'
     paginate_by = 7
+
+    def get_queryset(self):
+        following_list = list(self.request.user.profile.follows.all())
+        print(following_list)
+        following_usernames_list = [profile.user.username for profile in following_list]
+        return Post.objects.filter(user__username__in=following_usernames_list).order_by('-created_at')
 
 
 class PostLikeToggle(View):
