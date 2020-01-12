@@ -16,7 +16,7 @@
 <div id="mylayout" class="layout">
 <div id="msgs" style="position: fixed; width: 100%"></div>
   	<div class="layout-content">
-    	<form id="search-form" method="GET">
+    	<form id="search-form">
       		<input type="text" placeholder="Search bookmates" name="username" id="username">
       		<button type="submit" id="search-btn"><i class="fa fa-search"></i></button>
     	</form>
@@ -31,7 +31,6 @@
         $(document).on('submit', '#search-form',function(e){
             e.preventDefault();
             $.ajax({
-                type:'GET',
                 url:'{% url "profile_search_result" %}',
                 data:{
                     username: $('#username').val(),
@@ -40,11 +39,14 @@
                 success:function(data){
                     if (data.status) {
                         $('#msgs').html(``);
-                        $('#result').html(`
+                        var htmlToPut = `
                              <div class="card col-8 offset-2">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12 col-lg-8 col-md-6">
+                                        <input type="hidden" id="usernameHiddenInput" value="${data.username}"/>
+                                        <input type="hidden" id="usernameHiddenInput" value="${data.userId}"/>
+
                                             <h3 class="mb-0 text-truncated">${data.firstname} ${data.lastname}</h3>
                                             <p>
                                                 ${data.description}
@@ -57,12 +59,18 @@
 
                                         </div>
                                         <div class="col-12 col-lg-4">
-                                            <h3 class="mb-0">${data.followers}</h3>
-                                            <small>Followers</small>
-                                            <button class="btn btn-outline-success btn-block"><span class="fa fa-plus-circle"></span>Follow</button>
-                                        </div>
+                                            <h3 class="mb-0" id="followers-count">${data.followersCount}</h3>
+                                            <small>Followers</small>`;
+                        if (data.username !== data.currentUsername) {
+                            if(data.isFollowing){
+                                htmlToPut +=  `<button class="btn btn-outline-danger btn-block follow-btn">Unfollow</button>`;
+                            } else {
+                                htmlToPut +=  `<button class="btn btn-outline-success btn-block follow-btn">Follow</button>`;
+                            }
+                        }
+                        htmlToPut += `</div>
                                         <div class="col-12 col-lg-4">
-                                            <h3 class="mb-0">${data.following}</h3>
+                                            <h3 class="mb-0">${data.followingCount}</h3>
                                             <small>Following</small>
                                             <a href="${data.profileUrl}" <button class="btn btn-outline-info btn-block"><span class="fa fa-user"></span> View Profile</button></a>
                                         </div>
@@ -72,10 +80,51 @@
                                         </div>
                                     </div>
                                  </div>
-                             </div>
-                        `)
+                             </div>`;
+                        $('#result').html(htmlToPut);
+                        $( ".follow-btn" ).bind( "click", function() {
+                          if ($('.follow-btn').hasClass('btn-outline-success')) {
+                                $.ajax({
+                                url: data.followUrl,
+                                data: {
+                                    'userId': data.userId
+                                },
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.status) {
+                                        $('.follow-btn').removeClass('btn-outline-success').addClass('btn-outline-danger').text('Unfollow');
+                                        var count = parseInt($('#followers-count').text());
+                                        count++;
+                                        $('#followers-count').text(count);
+                                        $('#msgs').html(`<div class='alert alert-success'>Now you are following ${data.username}</div>`);
+                                    } else if (data.err) {
+                                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                                    }
+                                }
+                            });
+                            } else {
+                                 $.ajax({
+                                url: data.unfollowUrl,
+                                data: {
+                                    'userId': data.userId
+                                },
+                                dataType: 'json',
+                                success: function (data) {
+                                    if (data.status) {
+                                        $('.follow-btn').removeClass('btn-outline-danger').addClass('btn-outline-success').text('Follow');
+                                        var count = parseInt($('#followers-count').text());
+                                        count--;
+                                        $('#followers-count').text(count);
+                                        $('#msgs').html(`<div class='alert alert-success'>Now you are not following ${data.username}</div>`);
+                                    } else if (data.err) {
+                                        $('#msgs').html(`<div class='alert alert-danger'>${data.err}</div>`);
+                                    }
+                                }
+                            });
+                            }
+                        });
                     } else if (data.err) {
-                        $('#result').html(``)
+                        $('#result').html(``);
                         $('#msgs').html(`<div class='alert alert-danger text-center'>${data.err}</div>`);
                     }
                     {#document.getElementById("post-form").reset();#}

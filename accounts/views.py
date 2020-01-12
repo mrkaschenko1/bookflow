@@ -202,9 +202,11 @@ def follow(request, username):
     user = get_object_or_404(User, username=username)
     if (user.profile in request.user.profile.follows.all()):
         data = {'err': 'You already follow this user'}
+    elif (user == request.user):
+        data = {'err': 'Don`t be selfish. Don`t follow yourself'}
     else:
         request.user.profile.follows.add(user.profile)
-        data = {'status': 'Okay'}
+        data = {'status': 'Okay', 'username': user.username}
     return JsonResponse(data)
 
 
@@ -214,7 +216,7 @@ def unfollow(request, username):
         data = {'err': 'You don`t follow this user'}
     else:
         request.user.profile.follows.remove(user.profile)
-        data = {'status': 'Okay'}
+        data = {'status': 'Okay', 'username': user.username}
     return JsonResponse(data)
 
 
@@ -232,21 +234,31 @@ class SearchProfile(View):
 
 def search_profile_result(request):
     username = request.GET.get('username', None)
-    if not username:
-        data = {'err': 'Please enter username'}
+    # if not username:
+    #     data = {'err': 'Please enter username'}
     try:
         user = User.objects.get(username__iexact=username)
+        if user.profile in request.user.profile.follows.all():
+            is_following = True
+        else:
+            is_following = False
+
         data = {
             'status': 'ok',
-            'followers': user.profile.follows.count(),
-            'following': user.profile.followed_by.count(),
+            'isFollowing': is_following,
+            'followersCount': user.profile.follows.count(),
+            'followingCount': user.profile.followed_by.count(),
             'books': user.profile.books.count(),
             'description': user.profile.bio,
             'username': user.username,
             'firstname': user.first_name,
             'lastname': user.last_name,
             'avatarUrl': user.profile.avatar.image.url,
-            'profileUrl': reverse('profile_info', kwargs={'username': username})
+            'profileUrl': reverse('profile_info', kwargs={'username': username}),
+            'followUrl': reverse('follow', kwargs={'username': username}),
+            'unfollowUrl': reverse('unfollow', kwargs={'username': username}),
+            'currentUsername': request.user.username,
+            'userId': user.id,
         }
 
     except ObjectDoesNotExist:
