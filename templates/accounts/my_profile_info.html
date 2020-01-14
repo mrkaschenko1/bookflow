@@ -19,7 +19,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="profile-img">
-                            <img src="{{ user_from_view.profile.avatar.image.url }}" width="200" height="auto" alt=""/>
+                            <img src="{{ user_from_view.profile.avatar.image.url }}" class="rounded" width="200" height="auto" alt=""/>
                         </div>
                         <div class="profile-about">
                             <div class="row">
@@ -57,6 +57,29 @@
                             {% if user_from_view == request.user %}
 
                                     <a href="{% url 'profile_update' %}"><button class="btn btn-outline-secondary">Edit profile</button></a>
+                                    <a href="{% url 'followers' %}"><button class="btn btn-outline-secondary">My bookmates</button></a>
+                                <br><br>
+                                <div class="moderator-request text-center">
+                                {% if moderation_request %}
+                                    Moderator request status
+                                    {% if moderation_request.accepted == False %}
+                                        <div class="alert alert-warning" role="alert">
+                                            Wait for acceptation
+                                        </div>
+                                    {% elif  moderation_request.accepted == True %}
+                                        <div class="alert alert-success" role="alert">
+                                            Request accepted
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-secondary" role="alert">
+                                            Wait for acceptation
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url 'moderator_request' %}"><button class="btn btn-primary btn-block">Request moderator`s permissons</button></a>
+                                {% endif %}
+
+                                </div>
                             {% else %}
                                 {% if user_from_view.profile in request.user.profile.follows.all %}
                                     <button class="btn btn-outline-danger follow-btn" onclick="follow()">Unfollow</button>

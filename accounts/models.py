@@ -16,6 +16,7 @@ class Profile(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     books = models.ManyToManyField(BookInfo, related_name='profiles')
     follows = models.ManyToManyField('self', related_name='followed_by', symmetrical=False, null=True)
+    is_moderator = models.BooleanField(default=False)
     # avatar = models.ImageField(upload_to = 'avatars/', null=True, blank=True)
 
 
@@ -26,6 +27,7 @@ class Avatar(models.Model):
                                      format='PNG',
                                      options={'quality': 60})
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='avatar')
+
 
     @property
     def image_url(self):
@@ -64,6 +66,11 @@ class Avatar(models.Model):
             img.thumbnail((300, 300))
 
         img.save(self.image.path)
+
+
+class ModRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users_requested')
+    accepted = models.BooleanField(null=True, blank=True)
 
 
 @receiver(post_save, sender=User)

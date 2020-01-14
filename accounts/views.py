@@ -19,7 +19,7 @@ from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.views import View
 from .forms import ProfileForm, UserForm
-from .models import Profile, Avatar
+from .models import Profile, Avatar, ModRequest
 from bookflow.constants import DEFAULT_AVATAR, TAG_LIMIT
 
 pusher = Pusher(
@@ -74,7 +74,7 @@ def update_profile(request):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Your profile was successfully updated!')
-            return redirect('home')
+            return redirect(reverse('profile_info', kwargs={'username': request.user.username}))
         else:
             messages.error(request, 'Please correct the error below.')
     else:
@@ -184,6 +184,11 @@ class DeleteCrudTag(View):
 class ProfileDetailView(View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
+        try:
+            moderation_request = ModRequest.objects.get(user=request.user)
+        except ObjectDoesNotExist:
+            moderation_request = None
+
         print(request.user.profile.follows.all())
         post_list = user.posts.all().order_by('-id')
         page = request.GET.get('page', 1)
@@ -195,7 +200,7 @@ class ProfileDetailView(View):
         except EmptyPage:
             posts = paginator.page(paginator.num_pages)
 
-        return render(request, 'accounts/my_profile_info.html', {'user_from_view': user, 'posts': posts})
+        return render(request, 'accounts/my_profile_info.html', {'user_from_view': user, 'posts': posts, 'moderation_request': moderation_request})
 
 
 def follow(request, username):
@@ -265,3 +270,13 @@ def search_profile_result(request):
         data = {'err': 'Try again. There is no user with such username'}
 
     return JsonResponse(data)
+
+
+def request_mod(request):
+    if not ModRequest.objects.filter(user=request.user):
+        mod_request = ModRequest.objects.create(user=request.user)
+        mod_request.save()
+        messages.success(request, "You've requested permissions for moderation, wait for admin to accept it")
+    else:
+        messages.warning(request, "You've already requested permissions, once is enough, admin is busy")
+    return redirect(reverse('profile_info', kwargs={'username': request.user.username}))

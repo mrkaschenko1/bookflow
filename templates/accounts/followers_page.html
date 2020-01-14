@@ -8,13 +8,16 @@
 {% endblock %}
 
 {% block content %}
+    <br>                                                                                                                                                                        
+        <a href="{% url 'profile_search' %}"><button class="btn btn-primary btn-block"><span class="fa fa-search"> Search and follow other bookmates</span></button></a>        
+        <br>
     <div class="row">
     <div class="col-6">
     {% if user.profile.follows %}
         <h3 class="text-center">Following</h3>
         <ul class="list-group">
         {% for profile in user.profile.follows.all %}
-            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.usermame %}">{{ profile.user.username }}</a></li>
+            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.username %}"><img src="{{ profile.avatar.image_thumbnail.url }}">{{ profile.user.username }}</a></li>
         {% endfor %}
         </ul>
         {% else %}
@@ -26,10 +29,13 @@
             <h3 class="text-center">Followers</h3>
         <ul class="list-group">
         {% for profile in user.profile.followed_by.all %}
-            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.usermame %}">{{ profile.user.username }}</a></li>
+            <li class="list-group-item"><a href="{% url 'profile_info' username=profile.user.username %}"><img src="{{ profile.avatar.image_thumbnail.url }}"> {{ profile.user.username }}</a></li>
         {% endfor %}
         </ul>
         {% endif %}
     </div>
     </div>
 {% endblock %}
+
+
+

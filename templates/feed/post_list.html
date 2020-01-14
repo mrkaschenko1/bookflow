@@ -16,9 +16,11 @@
 
     </div>
 <div class="row">
-
 <div id="postDiv" class="col-8 offset-2">
   {% if posts %}
+      <br>
+        <a href="{% url 'profile_search' %}"><button class="btn btn-primary btn-block"><span class="fa fa-search"> Search and follow other bookmates</span></button></a>
+      <br>
       {% for post in posts %}
   <div class="card text-center mb-5" id="post-{{post.id}}">
       <div class="card-header">
@@ -82,13 +84,14 @@
 
     let channels = [];
     {% for profile in request.user.profile.follows.all %}
-        channels.add('{{ profile.user.username }}-channel');
+        channels.push('{{ profile.user.username }}-channel');
     {% endfor %}
+    console.log(channels);
         channels = channels.map(channelName => pusher.subscribe(channelName));
     {#var channel = pusher.subscribe('andrey-channel');#}
     for (var channel of channels) {
         channel.bind('post-pub', function(data) {
-        $('#msgs').append(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-sync" style="font-size:16px"></i>
+        $('#msgs').html(`<a href="{% url 'feed' %}"><div class="alert alert-info text-center" role="alert">Your friend has published new post just now, update page to see it<br><i class="fas fa-sync" style="font-size:16px"></i>
 </div></a>`);
       {#alert(JSON.stringify(data));#}
     });
