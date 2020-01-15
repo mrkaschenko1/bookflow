@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
 
@@ -94,8 +95,11 @@ class UpdateCrudPost(LoginRequiredMixin, View):
         print(books)
         post = {'id': obj.id, 'title': obj.title, 'body': obj.body, 'created_at': obj.created_at, 'books': books}
 
+        # reversed_book_detail_url = reverse('book_detail')
+
         data = {
-            'post': post
+            'post': post,
+            # 'reversedBookUrl': reversed_book_detail_url
         }
         return JsonResponse(data)
 

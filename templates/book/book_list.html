@@ -37,8 +37,8 @@
           </div>
       {% endif %}
         <div class="list-group list-group-horizontal" id="list-tab" role="tablist">
-            {% for shelf in shelves %}
-          <a class="list-group-item list-group-item-action {{ shelf.active }}" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
+            {% for shelf in request.user.profile.shelves.all %}
+          <a class="list-group-item list-group-item-action" href="?shelf={{ shelf.name }}">{{ shelf.name }}</a>
             {% endfor %}
         </div>
       </div>
@@ -67,12 +67,12 @@
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                   {% for shelf in shelves %}
                                     {% if not shelf.active %}
-                                      <a class="dropdown-item" href="{% url 'move_book' %}?from={{ request.GET.shelf|default:"To Read" }}&to={{ shelf.name }}&id={{ profile_book_info.book.google_id }}">{{ shelf.name }}</a>
+                                      <a class="dropdown-item" href="{% url 'move_book' %}?from={{ request.GET.shelf|default:"To read" }}&to={{ shelf.name }}&id={{ profile_book_info.book.google_id }}">{{ shelf.name }}</a>
                                     {% endif %}
                                   {% endfor %}
                               </div>
                   </div>
-                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To Read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
+                    <a href="{% url 'delete_book' %}?shelf={{ request.GET.shelf|default:"To read" }}&id={{ profile_book_info.book.google_id }}"><button type="button" class="btn btn-outline-danger">Delete</button></a>
 
                 </div>
               </div>

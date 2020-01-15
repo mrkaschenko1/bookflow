@@ -23,6 +23,11 @@
           </h4>
           </div>
       {% endif %}
+      <div class="list-group list-group-horizontal" id="list-tab" role="tablist">
+            {% for shelf in request.user.profile.shelves.all %}
+          <a class="list-group-item list-group-item-action" href="{% url 'book_list' %}?shelf={{ shelf.name }}">{{ shelf.name }}</a>
+            {% endfor %}
+        </div>
       </div>
     </div>
     <br>

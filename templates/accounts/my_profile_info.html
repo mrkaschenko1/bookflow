@@ -436,7 +436,7 @@ function updateToPostTabel(post){
                   </button>
                   <div class="collapse" id="collapseforpost-${post.id}">`;
         for (book in books) {
-            textToAppend += `<img src="${books[book].fields.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="${books[book].fields.title}">`;
+            textToAppend += `<a href="/book/detail/${books[book].pk}"><img src="${books[book].fields.small_pic_url}}" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="${books[book].fields.title}"></a>`;
         }
 
         textToAppend += `</div>`;

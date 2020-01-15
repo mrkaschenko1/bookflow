@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,7 +10,7 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
-from django.views.generic import RedirectView, DetailView, UpdateView
+from django.views.generic import RedirectView, DetailView, UpdateView, CreateView
 
 from accounts.models import Profile
 from book.models import BookInfo, Shelf, ProfileBookInfo
@@ -130,8 +129,6 @@ class BookDetail(View):
             show_select_field = False
             from_shelf = ProfileBookInfo.objects.get(book=book, profile=request.user.profile).shelf.name
             shelves.remove(from_shelf)
-
-
         return render(request, 'book/book_detail.html', {'book': book, 'show_select_field': show_select_field, 'shelves': shelves, 'from_shelf': from_shelf})
 
 
@@ -204,8 +201,8 @@ def delete_book(request):
 
 def move_book(request):
     try:
-        from_shelf_name = request.GET.get('from').replace("%20", " ")
-        to_shelf_name = request.GET.get('to').replace("%20", " ")
+        from_shelf_name = request.GET.get('from').replace("%20", " ").lower().capitalize()
+        to_shelf_name = request.GET.get('to').replace("%20", " ").lower().capitalize()
         id = request.GET.get('id').replace("%20", " ")
     except AttributeError:
         raise Http404
@@ -222,7 +219,12 @@ def move_book(request):
     profile_book_info_obj.time = datetime.now()
     profile_book_info_obj.save()
 
-    messages.success(request,
+    shelves = [shelf.name for shelf in request.user.profile.shelves.all()]
+    print(shelves)
+    if shelves.index(from_shelf_name)>shelves.index(to_shelf_name):
+        messages.warning(request, f'Book "{book_obj.title}" was successfully moved from "{from_shelf_name}" to "{to_shelf_name}" shelf, but did you really want it?')
+    else:
+        messages.success(request,
                      f'Book "{book_obj.title}" was successfully moved from "{from_shelf_name}" to "{to_shelf_name}" shelf')
     return redirect('book_list')
 
@@ -316,3 +318,20 @@ class BookUpdate(UpdateView, SuccessMessageMixin):
     #     if not self.request.user.profile.is_moderator:
     #         return redirect(reverse('book_detail', kwargs={'id': self.object.id}))
     #     return None
+
+
+class ModeratorBookAdd(CreateView, SuccessMessageMixin):
+    model = BookInfo
+    fields = ('title', 'authors', 'description')
+    template_name = 'book/moderator_book_add.html'
+
+    success_message = 'Book was added'
+
+    def get_success_url(self):
+        return reverse('book_detail', kwargs={'id': self.object.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.profile.is_moderator:
+            return redirect(reverse('book_list'))
+        else:
+            return super(ModeratorBookAdd, self).dispatch(request, *args, **kwargs)

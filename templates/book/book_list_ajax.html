@@ -19,7 +19,13 @@
     <div class="row">
       <div class="col-12">
       <br>
-      <a href="#" onclick="openSearch()" class="btn btn-block btn-primary btn-primary"><i class="fas fa-plus"></i> Add book</a>
+      <a href="#" onclick="openSearch()" class="btn btn-block btn-primary btn-primary"><i class="fas fa-search-plus"></i> Find a book </a>
+          <br>
+{#      {% if request.user.profile.is_moderator %}#}
+{#          <a href="{% url 'moderator_book_add' %}" class="btn btn-block btn-primary btn-primary"><i class="fas fa-plus"></i> Add a book </a>#}
+{#      {% endif %}#}
+
+
       <div id="myOverlay" class="overlay">
       <span class="closebtn" onclick="closeSearch()" title="Close Overlay">x</span>
       <div class="overlay-content">

@@ -1,14 +1,28 @@
-{% extends 'base.html' %}
+{#{% extends 'base.html' %}#}
+{% load static %}
+<html>
+<head>
+<title>Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 
-{% block title %}Home{% endblock %}
-
-{% block content %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/velocity/1.2.2/velocity.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/velocity/1.2.2/velocity.ui.min.js"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+<body>
     {% if user.is_authenticated %}
-    <br>
-    <div class="text-center">
-        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle shadow-lg p-2" alt="avatar">
-        <img src="{{user.profile.avatar.image_thumbnail.url}}" class="rounded-circle shadow-lg" alt="avatar">
-        <p><a href="{% url 'book_list' %}">My Shelves</a></p>
-    </div>
+    <div class="overlay-navigation">
+  <nav role="navigation">
+    <ul>
+      <li><a href="{% url 'book_list' %}" data-content="The beginning">My bookshelves</a></li>
+      <li><a href="{% url 'profile_info' username=request.user.username %}" data-content="Curious?">Profile</a></li>
+      <li><a href="{% url 'feed' %}" data-content="Your bookmates post really interesing posts, come and see">Newsfeed</a></li>
+      <li><a href="{% url 'tags_manage' %}" data-content="Use tags to conveniently filter your books">My tags</a></li>
+      <li><a href="{% url 'profile_search' %}" data-content="Don't hesitate">Search bookmate</a></li>
+    </ul>
+  </nav>
+</div>
     {% endif %}
-{% endblock %}
+</body>
+</html>
