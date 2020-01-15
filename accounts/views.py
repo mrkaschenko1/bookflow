@@ -111,7 +111,7 @@ def index(request):
     return render(request, 'home.html')
 
 
-class TagCrudView(ListView):
+class TagCrudView(LoginRequiredMixin, ListView):
     # model = Tag
     # queryset = Tag.objects.filter(profile=)
     template_name = 'accounts/tags.html'
@@ -122,7 +122,7 @@ class TagCrudView(ListView):
         return queryset
 
 
-class CreateCrudTag(View):
+class CreateCrudTag(LoginRequiredMixin, View):
     def get(self, request):
         profile = request.user.profile
         title1 = request.GET.get('name', None)
@@ -149,7 +149,7 @@ class CreateCrudTag(View):
         return JsonResponse(data)
 
 
-class UpdateCrudTag(View):
+class UpdateCrudTag(LoginRequiredMixin, View):
     def  get(self, request):
         id1 = request.GET.get('id', None)
         title1 = request.GET.get('name', None)
@@ -171,7 +171,7 @@ class UpdateCrudTag(View):
         return JsonResponse(data)
 
 
-class DeleteCrudTag(View):
+class DeleteCrudTag(LoginRequiredMixin, View):
     def get(self, request):
         id1 = request.GET.get('id', None)
         Tag.objects.get(id=id1, profile=request.user.profile).delete()
@@ -181,7 +181,7 @@ class DeleteCrudTag(View):
         return JsonResponse(data)
 
 
-class ProfileDetailView(View):
+class ProfileDetailView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, username=username)
         try:
@@ -203,6 +203,7 @@ class ProfileDetailView(View):
         return render(request, 'accounts/my_profile_info.html', {'user_from_view': user, 'posts': posts, 'moderation_request': moderation_request})
 
 
+@login_required
 def follow(request, username):
     user = get_object_or_404(User, username=username)
     if (user.profile in request.user.profile.follows.all()):
@@ -215,6 +216,7 @@ def follow(request, username):
     return JsonResponse(data)
 
 
+@login_required
 def unfollow(request, username):
     user = get_object_or_404(User, username=username)
     if (user.profile not in request.user.profile.follows.all()):
@@ -225,18 +227,19 @@ def unfollow(request, username):
     return JsonResponse(data)
 
 
-class FollowerPage(View):
+class FollowerPage(LoginRequiredMixin, View):
     def get(self, request):
         # print(request.user.profile.follows.all())
         # print(request.user.profile.followed_by)
         return render(request, 'accounts/followers_page.html')
 
 
-class SearchProfile(View):
+class SearchProfile(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'accounts/profile_search.html')
 
 
+@login_required
 def search_profile_result(request):
     username = request.GET.get('username', None)
     # if not username:
@@ -272,6 +275,7 @@ def search_profile_result(request):
     return JsonResponse(data)
 
 
+@login_required
 def request_mod(request):
     if not ModRequest.objects.filter(user=request.user):
         mod_request = ModRequest.objects.create(user=request.user)

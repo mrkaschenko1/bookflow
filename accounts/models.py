@@ -1,4 +1,5 @@
 from PIL import Image
+from django.contrib.auth import logout
 from django.db import models
 from django.contrib.auth.models import User
 from imagekit.models import ImageSpecField
@@ -8,6 +9,8 @@ from bookflow.constants import DEFAULT_AVATAR
 from book.models import Shelf, BookInfo
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from middleware.middlewares import RequestMiddleware
 
 
 class Profile(models.Model):
@@ -97,5 +100,29 @@ def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
     except Profile.DoesNotExist:
         print('foo')
+
+
+@receiver(post_save, sender=ModRequest)
+def change_moderator_field(sender, instance, **kwargs):
+    try:
+        profile = User.objects.get(username=instance.user.username).profile
+        if instance.accepted is not None:
+            profile.is_moderator = instance.accepted
+        else:
+            profile.is_moderator = False
+        profile.save()
+    except Profile.DoesNotExist:
+        print('foo')
+
+
+@receiver(post_save, sender=User)
+def logout_user_on_banned(sender, instance, **kwargs):
+    try:
+        request = RequestMiddleware(get_response=None)
+        request = request.thread_local.current_request
+        if not User.is_active:
+            logout(request)
+    except Exception as e:
+        print(e.with_traceback())
 
 # post_save.connect(create_user_profile, sender='User')

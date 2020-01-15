@@ -1,5 +1,6 @@
 from time import timezone
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
@@ -19,15 +20,15 @@ pusher = Pusher(
 )
 
 
-class PostCrudView(ListView):
-    template_name = 'feed/profile_posts.html'
-    context_object_name = 'posts'
+# class PostCrudView(ListView):
+#     template_name = 'feed/profile_posts.html'
+#     context_object_name = 'posts'
+#
+#     def get_queryset(self):
+#         return Post.objects.filter(user=self.request.user).order_by('-created_at')
 
-    def get_queryset(self):
-        return Post.objects.filter(user=self.request.user).order_by('-created_at')
 
-
-class CreateCrudPost(View):
+class CreateCrudPost(LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         title1 = request.POST.get('title', None)
@@ -64,7 +65,7 @@ class CreateCrudPost(View):
         return JsonResponse(data)
 
 
-class UpdateCrudPost(View):
+class UpdateCrudPost(LoginRequiredMixin, View):
     def post(self, request):
         id1 = request.POST.get('id', None)
         title1 = request.POST.get('title', None)
@@ -99,7 +100,7 @@ class UpdateCrudPost(View):
         return JsonResponse(data)
 
 
-class DeleteCrudPost(View):
+class DeleteCrudPost(LoginRequiredMixin, View):
     def get(self, request):
         id1 = request.GET.get('id', None)
         Post.objects.get(id=id1, user=request.user).delete()
@@ -140,7 +141,7 @@ class DeleteCrudPost(View):
 #         return HttpResponse('error, please try again')
 
 
-class PostList(ListView):
+class PostList(LoginRequiredMixin, ListView):
     template_name = 'feed/post_list.html'
     # queryset = Post.objects.all().order_by('-created_at')
     context_object_name = 'posts'
@@ -153,7 +154,7 @@ class PostList(ListView):
         return Post.objects.filter(user__username__in=following_usernames_list).order_by('-created_at')
 
 
-class PostLikeToggle(View):
+class PostLikeToggle(LoginRequiredMixin, View):
     def get(self, request):
         try:
             id1 = request.GET.get('id', None)

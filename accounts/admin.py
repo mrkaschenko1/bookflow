@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
+
+from bookflow import settings
 from .models import Profile, Avatar, ModRequest
 
 # Register your models here.
 
-# admin.site.register(Profile)
+if settings.DEBUG:
+    admin.site.register(Profile)
 # admin.site.register(Avatar)
 admin.site.unregister(Group)
 admin.site.unregister(User)

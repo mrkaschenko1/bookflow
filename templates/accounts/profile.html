@@ -13,7 +13,7 @@
   {% csrf_token %}
     <br>
     <div class="text-center">
-        <img src="{{user.profile.avatar.image.url}}" class="rounded-circle shadow-lg p-2" alt="avatar">
+        <img src="{{user.profile.avatar.image.url}}" class="img-thumbnail rounded-circle shadow-lg p-2" alt="avatar">
         <p><a href="{% url 'avatar_delete' %}">Delete avatar</a></p>
     </div>
     {{ avatar_form|crispy }}
