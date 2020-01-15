@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -9,7 +11,7 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
-from django.views.generic import RedirectView, DetailView
+from django.views.generic import RedirectView, DetailView, UpdateView
 
 from accounts.models import Profile
 from book.models import BookInfo, Shelf, ProfileBookInfo
@@ -293,3 +295,24 @@ class DeleteTagFromBookAjax(View):
         else:
             data = {'err': 'error occured'}
         return JsonResponse(data)
+
+
+class BookUpdate(UpdateView, SuccessMessageMixin):
+    model = BookInfo
+    fields = ('title', 'authors', 'description')
+    template_name = 'book/book_update.html'
+    success_message = 'Book was updated'
+
+    def get_success_url(self):
+        return reverse('book_detail', kwargs={'id': self.object.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.profile.is_moderator:
+            return redirect(reverse('profile_info', kwargs={'username': request.user.username}))
+        else:
+            return super(BookUpdate, self).dispatch(request, *args, **kwargs)
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     if not self.request.user.profile.is_moderator:
+    #         return redirect(reverse('book_detail', kwargs={'id': self.object.id}))
+    #     return None

@@ -43,4 +43,7 @@
 
         </div>
     {% endif %}
+    {% if request.user.profile.is_moderator %}
+    <a href="{% url 'book_update' pk=book.id %}"><button class="btn btn-outline-primary">Update book info</button></a>
+    {% endif %}
 {% endblock %}
