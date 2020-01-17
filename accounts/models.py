@@ -22,6 +22,9 @@ class Profile(models.Model):
     is_moderator = models.BooleanField(default=False)
     # avatar = models.ImageField(upload_to = 'avatars/', null=True, blank=True)
 
+    def __str__(self):
+        return self.user.username
+
 
 class Avatar(models.Model):
     image = models.ImageField(upload_to='avatars', default=DEFAULT_AVATAR)

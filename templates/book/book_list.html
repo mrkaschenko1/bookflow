@@ -83,8 +83,12 @@
             <span class="badge badge-pill badge-outline-secondary">{{ tag }}</span>
             {% endfor %}
          {% endif %}
+        {% if request.user.profile.tags.count > 0%}
         <button type="button" class="badge badge-pill badge-primary" data-toggle="modal" data-target="#tagModal{{ profile_book_info.id }}" {% if not request.user.profile.tags|exclude:profile_book_info.tags %}disabled{% endif %}>add tags</button>
-
+        {% else %}
+            fdknsfkdsn
+            <a href="{% url 'tags_manage' %}"><button type="button" class="badge badge-pill badge-primary">add tags</button></a>
+        {% endif %}
         <!-- Modal -->
         <div class="modal fade" id="tagModal{{ profile_book_info.id }}" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">

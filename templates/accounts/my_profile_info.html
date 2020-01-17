@@ -57,7 +57,8 @@
                             {% if user_from_view == request.user %}
 
                                     <a href="{% url 'profile_update' %}"><button class="btn btn-outline-secondary">Edit profile</button></a>
-                                    <a href="{% url 'followers' %}"><button class="btn btn-outline-secondary">My bookmates</button></a>
+                                <a href="{% url 'logout' %}"><button class="btn btn-outline-danger">Logout</button></a>
+                                    <a href="{% url 'followers' %}"><button class="btn btn-outline-primary">My bookmates</button></a>
                                 <br><br>
                                 <div class="moderator-request text-center">
                                 {% if moderation_request %}
@@ -78,8 +79,9 @@
                                 {% else %}
                                     <a href="{% url 'moderator_request' %}"><button class="btn btn-primary btn-block">Request moderator`s permissons</button></a>
                                 {% endif %}
-
+                                    <a href="{% url 'home' %}"><button class="btn btn-outline-secondary">MAIN MENU</button></a>
                                 </div>
+
                             {% else %}
                                 {% if user_from_view.profile in request.user.profile.follows.all %}
                                     <button class="btn btn-outline-danger follow-btn" onclick="follow()">Unfollow</button>
