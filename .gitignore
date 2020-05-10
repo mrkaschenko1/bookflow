@@ -5,6 +5,7 @@
 __pycache__
 db.sqlite3
 media
+local_settings.py
 
 # Backup files #
 *.bak
@@ -23,6 +24,7 @@ media
 .idea/**/gradle.xml
 .idea/**/libraries
 *.iws /out/
+
 
 # Python #
 *.py[cod]
