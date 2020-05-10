@@ -1,6 +1,4 @@
 import os
-import dj_database_url
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from django.contrib.messages import constants as messages
@@ -15,9 +13,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '_n8jhc-1(zlcop!90+$ug6mm1-h^nnu7kp59#^^(+a0yaf3%4z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -76,17 +74,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bookflow.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bookflow',
-        'USER': 'name',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
